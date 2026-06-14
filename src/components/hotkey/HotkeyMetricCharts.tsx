@@ -24,7 +24,7 @@ export function HotkeyMetricCharts({ history }: { history: MetricHistory['histor
   }));
 
   return (
-    <>
+    <div className="space-y-6">
       <ChartCard
         title="Eval Scores Over Time"
         data={chartData}
@@ -43,7 +43,7 @@ export function HotkeyMetricCharts({ history }: { history: MetricHistory['histor
         lines={[{ key: 'weight', color: '#38bdf8', name: 'Weight' }]}
         yTickFormatter={(v) => (Math.abs(v) < 0.0001 && v !== 0 ? v.toExponential(1) : String(v))}
       />
-    </>
+    </div>
   );
 }
 
@@ -62,23 +62,28 @@ function ChartCard({
 }) {
   return (
     <div className="card">
-      <h3 className="mb-4 font-semibold">{title}</h3>
+      <h3 className="section-title mb-4">{title}</h3>
       {data.length === 0 ? (
-        <p className="py-8 text-center text-sm text-slate-500">{emptyMessage}</p>
+        <p className="py-10 text-center text-sm text-slate-500">{emptyMessage}</p>
       ) : (
         <ResponsiveContainer width="100%" height={280}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis dataKey="time" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-            <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} tickFormatter={yTickFormatter} />
+          <LineChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+            <XAxis dataKey="time" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={yTickFormatter} />
             <Tooltip
-              contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8 }}
+              contentStyle={{
+                background: 'rgba(15, 23, 42, 0.95)',
+                border: '1px solid rgba(51, 65, 85, 0.8)',
+                borderRadius: 12,
+                fontSize: 12,
+              }}
               formatter={(value: number, name: string) => {
                 if (name === 'Weight') return formatWeight(value);
                 return formatNumber(value);
               }}
             />
-            <Legend />
+            <Legend wrapperStyle={{ fontSize: 12, paddingTop: 12 }} />
             {lines.map((l) => (
               <Line
                 key={l.key}

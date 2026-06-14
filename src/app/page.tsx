@@ -3,7 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { AuthGuard } from '@/components/AuthGuard';
-import { StatCard, LoadingState } from '@/components/Layout';
+import { PageHeader } from '@/components/PageHeader';
+import { StatCard, LoadingState, EmptyState } from '@/components/Layout';
 import { useTokenMetrics } from '@/hooks/useTokenMetrics';
 import { api, PortfolioDashboard, formatNumber, truncateAddress } from '@/lib/api-client';
 
@@ -21,21 +22,18 @@ function DashboardContent() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold">Portfolio Dashboard</h2>
-        <p className="text-slate-400">Overview of your coldkeys and miner performance</p>
-      </div>
+      <PageHeader
+        title="Portfolio Overview"
+        description="Balances, emissions, and miner performance across your coldkeys"
+      />
 
       <section>
-        <h3 className="mb-4 text-lg font-semibold text-slate-200">Coldkey Summary</h3>
+        <h3 className="section-title mb-4">Coldkey Summary</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <StatCard label={fieldLabel('tao')} value={format('tao', coldkeySummary.totalTao)} />
-          <StatCard label={fieldLabel('alpha')} value={format('alpha', coldkeySummary.totalAlpha)} />
+          <StatCard accent="brand" label={fieldLabel('tao')} value={format('tao', coldkeySummary.totalTao)} />
+          <StatCard accent="accent" label={fieldLabel('alpha')} value={format('alpha', coldkeySummary.totalAlpha)} />
           <StatCard label={fieldLabel('stake')} value={format('stake', coldkeySummary.totalStake)} />
-          <StatCard
-            label={fieldLabel('emission')}
-            value={format('emission', coldkeySummary.dailyEmission)}
-          />
+          <StatCard label={fieldLabel('emission')} value={format('emission', coldkeySummary.dailyEmission)} />
           <StatCard
             label={unit === 'usd' ? 'Weekly Emission' : fieldLabel('emission').replace('Daily', 'Weekly')}
             value={format('emission', coldkeySummary.weeklyEmission)}
@@ -48,7 +46,7 @@ function DashboardContent() {
       </section>
 
       <section>
-        <h3 className="mb-4 text-lg font-semibold text-slate-200">Hotkey Summary</h3>
+        <h3 className="section-title mb-4">Hotkey Summary</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <StatCard label="Miners" value={hotkeySummary.minerCount} />
           <StatCard label="Average F1" value={formatNumber(hotkeySummary.averageF1)} />
@@ -60,6 +58,7 @@ function DashboardContent() {
               hotkeySummary.bestMiner?.label ??
               truncateAddress(hotkeySummary.bestMiner?.address ?? '')
             }
+            accent="brand"
           />
           <StatCard
             label="Worst Miner F1"
@@ -74,22 +73,25 @@ function DashboardContent() {
 
       <section>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-slate-200">Your Coldkeys</h3>
-          <Link href="/coldkeys" className="text-sm text-brand-100 hover:underline">
-            Manage coldkeys
+          <h3 className="section-title">Your Coldkeys</h3>
+          <Link href="/coldkeys" className="link-brand text-sm">
+            Manage coldkeys →
           </Link>
         </div>
         {coldkeys.length === 0 ? (
-          <div className="card text-center text-slate-400">
-            No coldkeys yet.{' '}
-            <Link href="/coldkeys" className="text-brand-100 hover:underline">
-              Add your first coldkey
-            </Link>
-          </div>
+          <EmptyState
+            title="No coldkeys yet"
+            description="Add a coldkey to start tracking balances and linked hotkeys."
+            action={
+              <Link href="/coldkeys" className="btn-primary">
+                Add coldkey
+              </Link>
+            }
+          />
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-surface-border">
+          <div className="table-wrap overflow-x-auto">
             <table className="w-full min-w-[640px]">
-              <thead className="bg-slate-900/50">
+              <thead>
                 <tr>
                   <th className="table-head">Label</th>
                   <th className="table-head">Address</th>
@@ -101,13 +103,15 @@ function DashboardContent() {
               </thead>
               <tbody>
                 {coldkeys.map((c) => (
-                  <tr key={c.id} className="hover:bg-slate-800/30">
-                    <td className="table-cell">{c.label || '—'}</td>
-                    <td className="table-cell font-mono text-xs">{truncateAddress(c.address, 8)}</td>
-                    <td className="table-cell">{format('tao', c.taoBalance)}</td>
-                    <td className="table-cell">{format('alpha', c.alphaBalance)}</td>
-                    <td className="table-cell">{format('stake', c.alphaStake)}</td>
-                    <td className="table-cell">{c.hotkeyCount}</td>
+                  <tr key={c.id} className="transition hover:bg-slate-800/25">
+                    <td className="table-cell font-medium text-slate-200">{c.label || '—'}</td>
+                    <td className="table-cell font-mono text-xs text-slate-400">{truncateAddress(c.address, 8)}</td>
+                    <td className="table-cell font-mono text-sm">{format('tao', c.taoBalance)}</td>
+                    <td className="table-cell font-mono text-sm">{format('alpha', c.alphaBalance)}</td>
+                    <td className="table-cell font-mono text-sm">{format('stake', c.alphaStake)}</td>
+                    <td className="table-cell">
+                      <span className="badge-muted">{c.hotkeyCount}</span>
+                    </td>
                   </tr>
                 ))}
               </tbody>

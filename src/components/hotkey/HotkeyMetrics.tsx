@@ -24,13 +24,16 @@ export function MetricRangePicker({
   onChange: (range: MetricRange) => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="section-title mr-1">Range</span>
       {METRIC_RANGES.map((r) => (
         <button
           key={r}
           type="button"
-          className={`rounded-lg px-3 py-1.5 text-sm ${
-            range === r ? 'bg-brand-600 text-white' : 'bg-surface-card text-slate-400 hover:text-white'
+          className={`rounded-xl px-3 py-1.5 text-xs font-medium transition ${
+            range === r
+              ? 'bg-brand-600 text-white shadow-sm ring-1 ring-brand-500/40'
+              : 'border border-surface-border bg-surface-elevated/60 text-slate-400 hover:border-slate-500/40 hover:text-slate-200'
           }`}
           onClick={() => onChange(r)}
         >
@@ -61,7 +64,7 @@ export function HotkeyHistoryTable({
 
   if (rows.length === 0) {
     return (
-      <p className="px-4 py-8 text-center text-sm text-slate-500">
+      <p className="px-4 py-10 text-center text-sm text-slate-500">
         No score changes in this range. Trigger a sync in Settings to collect history.
       </p>
     );
@@ -70,7 +73,7 @@ export function HotkeyHistoryTable({
   return (
     <div className={`overflow-x-auto ${compact ? 'max-h-[420px] overflow-y-auto' : ''}`}>
       <table className="w-full min-w-[640px]">
-        <thead className="sticky top-0 bg-slate-900/95">
+        <thead className="sticky top-0 z-[1] bg-slate-900/95 backdrop-blur-sm">
           <tr>
             <th className="table-head">Time</th>
             <th className="table-head">Weight</th>
@@ -83,8 +86,8 @@ export function HotkeyHistoryTable({
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.timestamp} className="hover:bg-slate-800/30">
-              <td className="table-cell whitespace-nowrap text-slate-300">
+            <tr key={row.timestamp} className="transition hover:bg-slate-800/25">
+              <td className="table-cell whitespace-nowrap font-mono text-xs text-slate-400">
                 {formatMetricTimestamp(row.timestamp)}
               </td>
               <td className="table-cell font-mono text-xs">{formatWeight(row.weight)}</td>

@@ -9,15 +9,13 @@ const UNITS: { id: TokenUnit; label: string }[] = [
   { id: 'alpha', label: 'Alpha' },
 ];
 
-export function TokenUnitSwitcher({ compact = false }: { compact?: boolean }) {
+export function TokenUnitSwitcher() {
   const unit = useTokenUnitStore((s) => s.unit);
   const setUnit = useTokenUnitStore((s) => s.setUnit);
 
   return (
     <div
-      className={`inline-flex rounded-lg border border-surface-border bg-slate-900/60 p-0.5 ${
-        compact ? '' : ''
-      }`}
+      className="inline-flex rounded-xl border border-surface-border bg-surface-elevated/80 p-1"
       role="group"
       aria-label="Token display unit"
     >
@@ -26,10 +24,10 @@ export function TokenUnitSwitcher({ compact = false }: { compact?: boolean }) {
           key={id}
           type="button"
           onClick={() => setUnit(id)}
-          className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+          className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
             unit === id
               ? 'bg-brand-600 text-white shadow-sm'
-              : 'text-slate-400 hover:text-slate-200'
+              : 'text-slate-500 hover:text-slate-300'
           }`}
         >
           {label}

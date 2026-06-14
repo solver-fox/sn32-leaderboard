@@ -44,18 +44,19 @@ export function HotkeyDashboard({ hotkeyId, variant, backHref }: HotkeyDashboard
       <div className={`flex items-start justify-between gap-4 ${isPanel ? 'shrink-0 pb-4' : ''}`}>
         <div className="min-w-0">
           {backHref && (
-            <Link href={backHref} className="text-sm text-brand-100 hover:underline">
-              ← Back to hotkeys
+            <Link href={backHref} className="link-brand inline-flex items-center gap-1 text-sm">
+              <span aria-hidden>←</span> Back to hotkeys
             </Link>
           )}
-          <h2 className={`font-bold ${backHref ? 'mt-2 text-2xl' : isPanel ? 'text-lg' : 'text-2xl'}`}>
+          <h2 className={`font-semibold tracking-tight text-white ${backHref ? 'mt-2 text-2xl' : isPanel ? 'text-lg' : 'text-2xl'}`}>
             {hotkey.label || 'Hotkey'}
           </h2>
-          <p className="truncate font-mono text-xs text-slate-400">{hotkey.address}</p>
+          <p className="truncate font-mono text-xs text-slate-500">{hotkey.address}</p>
           {metrics.current.uid != null && (
-            <p className="text-sm text-slate-500">
-              UID {metrics.current.uid} · Rank {metrics.current.rank ?? '—'}
-            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <span className="badge-muted">UID {metrics.current.uid}</span>
+              <span className="badge-brand">Rank {metrics.current.rank ?? '—'}</span>
+            </div>
           )}
           {(() => {
             const reg = getHotkeyRegistration(hotkey);
@@ -85,7 +86,7 @@ export function HotkeyDashboard({ hotkeyId, variant, backHref }: HotkeyDashboard
       </div>
 
       <section className={isPanel ? 'shrink-0 space-y-3' : 'space-y-3'}>
-        {!isPanel && <h3 className="text-lg font-semibold text-slate-200">Current Eval Scores</h3>}
+        {!isPanel && <h3 className="section-title">Current Eval Scores</h3>}
         <HotkeyEvalStats current={metrics.current} />
       </section>
 
@@ -96,11 +97,11 @@ export function HotkeyDashboard({ hotkeyId, variant, backHref }: HotkeyDashboard
       {!isPanel && <HotkeyMetricCharts history={metrics.history} />}
 
       <section
-        className={`card overflow-hidden p-0 ${isPanel ? 'flex min-h-0 flex-1 flex-col' : ''}`}
+        className={`overflow-hidden rounded-2xl border border-surface-border bg-surface-elevated/40 shadow-card ${isPanel ? 'flex min-h-0 flex-1 flex-col' : 'card p-0'}`}
       >
-        <div className="shrink-0 border-b border-surface-border px-4 py-3">
-          <h3 className="font-semibold">History</h3>
-          <p className="text-xs text-slate-400">
+        <div className="shrink-0 border-b border-surface-border px-4 py-3.5">
+          <p className="text-sm font-semibold text-white">History</p>
+          <p className="text-xs text-slate-500">
             Timestamps where weight, reward, FP, F1, AP, or rank changed
           </p>
         </div>
@@ -134,20 +135,22 @@ export function HotkeyListItem({
           onSelect();
         }
       }}
-      className={`group cursor-pointer border-b border-surface-border px-4 py-3 transition-colors ${
-        selected ? 'bg-brand-600/15 border-l-2 border-l-brand-500' : 'hover:bg-slate-800/40 border-l-2 border-l-transparent'
+      className={`group cursor-pointer border-b border-surface-border/60 px-4 py-3.5 transition ${
+        selected
+          ? 'border-l-2 border-l-brand-500 bg-brand-600/10'
+          : 'border-l-2 border-l-transparent hover:bg-slate-800/40'
       }`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className={`truncate font-medium ${selected ? 'text-brand-100' : 'text-slate-200'}`}>
+          <p className={`truncate text-sm font-medium ${selected ? 'text-brand-200' : 'text-slate-200'}`}>
             {hotkey.label || truncateAddress(hotkey.address, 8)}
           </p>
-          <p className="truncate font-mono text-xs text-slate-500">{truncateAddress(hotkey.address, 10)}</p>
+          <p className="truncate font-mono text-[11px] text-slate-500">{truncateAddress(hotkey.address, 10)}</p>
         </div>
         <button
           type="button"
-          className="shrink-0 text-xs text-red-400 opacity-0 hover:underline group-hover:opacity-100"
+          className="btn-danger shrink-0 text-xs opacity-0 group-hover:opacity-100"
           onClick={(e) => {
             e.stopPropagation();
             onDelete();
@@ -156,9 +159,9 @@ export function HotkeyListItem({
           Delete
         </button>
       </div>
-      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
-        <span>Rank {hotkey.rank ?? '—'}</span>
-        <span>F1 {hotkey.f1 != null ? Number(hotkey.f1).toFixed(3) : '—'}</span>
+      <div className="mt-2.5 flex flex-wrap gap-1.5">
+        <span className="badge-muted">Rank {hotkey.rank ?? '—'}</span>
+        <span className="badge-brand">F1 {hotkey.f1 != null ? Number(hotkey.f1).toFixed(3) : '—'}</span>
       </div>
       <div className="mt-1 text-xs text-slate-500">
         {reg.source === 'subnet' ? 'Reg.' : 'Added'} {reg.label} · {reg.age}

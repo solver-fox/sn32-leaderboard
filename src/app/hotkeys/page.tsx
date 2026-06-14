@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AuthGuard } from '@/components/AuthGuard';
+import { PageHeader } from '@/components/PageHeader';
 import { HotkeyDashboard, HotkeyListItem } from '@/components/hotkey/HotkeyDashboard';
-import { LoadingState } from '@/components/Layout';
+import { EmptyState, LoadingState } from '@/components/Layout';
 import { api, Coldkey, Hotkey, truncateAddress } from '@/lib/api-client';
 
 function HotkeysContent() {
@@ -57,14 +58,14 @@ function HotkeysContent() {
   });
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] min-h-[520px] flex-col gap-4">
-      <div>
-        <h2 className="text-2xl font-bold">Hotkeys</h2>
-        <p className="text-slate-400">Select a hotkey to view its eval history and scores</p>
-      </div>
+    <div className="flex min-h-[calc(100vh-8rem)] flex-col gap-6">
+      <PageHeader
+        title="Hotkeys"
+        description="Select a miner to inspect eval scores, weight history, and on-chain metrics"
+      />
 
       <div className="card shrink-0">
-        <h3 className="mb-3 font-semibold">Add Hotkey</h3>
+        <h3 className="mb-4 text-sm font-semibold text-white">Add Hotkey</h3>
         <form
           className="flex flex-wrap gap-3"
           onSubmit={(e) => {
@@ -108,15 +109,16 @@ function HotkeysContent() {
       {isLoading ? (
         <LoadingState />
       ) : !hotkeys?.length ? (
-        <div className="card flex flex-1 items-center justify-center text-slate-400">
-          No hotkeys yet. Add one above to get started.
-        </div>
+        <EmptyState
+          title="No hotkeys yet"
+          description="Link a hotkey to a coldkey above to start tracking miner performance."
+        />
       ) : (
-        <div className="flex min-h-0 flex-1 overflow-hidden rounded-xl border border-surface-border">
-          <aside className="flex w-72 shrink-0 flex-col border-r border-surface-border bg-slate-900/30 lg:w-80">
-            <div className="border-b border-surface-border px-4 py-3">
-              <h3 className="text-sm font-semibold text-slate-300">Your hotkeys</h3>
-              <p className="text-xs text-slate-500">{hotkeys.length} total</p>
+        <div className="table-wrap flex min-h-[520px] flex-1 overflow-hidden">
+          <aside className="flex w-72 shrink-0 flex-col border-r border-surface-border bg-surface-elevated/30 lg:w-80">
+            <div className="border-b border-surface-border px-4 py-3.5">
+              <p className="section-title">Your hotkeys</p>
+              <p className="mt-0.5 text-xs text-slate-500">{hotkeys.length} registered</p>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto">
               {hotkeys.map((h) => (
@@ -133,13 +135,14 @@ function HotkeysContent() {
             </div>
           </aside>
 
-          <main className="flex min-w-0 flex-1 flex-col overflow-hidden p-4 lg:p-6">
+          <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-surface-elevated/10 p-4 lg:p-6">
             {selectedId ? (
               <HotkeyDashboard hotkeyId={selectedId} variant="panel" />
             ) : (
-              <div className="flex flex-1 items-center justify-center text-slate-400">
-                Select a hotkey from the list
-              </div>
+              <EmptyState
+                title="Select a hotkey"
+                description="Choose a miner from the list to view scores and history."
+              />
             )}
           </main>
         </div>

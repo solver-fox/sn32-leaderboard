@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { AuthGuard } from '@/components/AuthGuard';
+import { PageHeader } from '@/components/PageHeader';
 import { LoadingState } from '@/components/Layout';
 import { useTokenMetrics } from '@/hooks/useTokenMetrics';
 import { api, LeaderboardItem, formatNumber, truncateAddress } from '@/lib/api-client';
@@ -38,14 +39,14 @@ function LeaderboardContent() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Leaderboard</h2>
-        <p className="text-slate-400">All tracked hotkeys ranked by performance</p>
-      </div>
+      <PageHeader
+        title="Leaderboard"
+        description="Tracked hotkeys ranked by validator eval scores and on-chain metrics"
+      />
 
       <input
-        className="input max-w-sm"
-        placeholder="Search hotkey or label..."
+        className="input max-w-md"
+        placeholder="Search hotkey or label…"
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
@@ -57,9 +58,9 @@ function LeaderboardContent() {
         <LoadingState />
       ) : (
         <>
-          <div className="overflow-x-auto rounded-xl border border-surface-border">
+          <div className="table-wrap overflow-x-auto">
             <table className="w-full min-w-[960px]">
-              <thead className="bg-slate-900/50">
+              <thead>
                 <tr>
                   {[
                     ['rank', 'Rank'],
@@ -70,7 +71,7 @@ function LeaderboardContent() {
                   ].map(([field, label]) => (
                     <th
                       key={field}
-                      className="table-head cursor-pointer select-none hover:text-slate-200"
+                      className="table-head cursor-pointer select-none transition hover:text-slate-300"
                       onClick={() => toggleSort(field)}
                     >
                       {label}
@@ -80,10 +81,10 @@ function LeaderboardContent() {
                   <th className="table-head">Hotkey</th>
                   <th className="table-head">UID</th>
                   <th
-                    className="table-head cursor-pointer select-none hover:text-slate-200"
+                    className="table-head cursor-pointer select-none transition hover:text-slate-300"
                     onClick={() => toggleSort('stake')}
                   >
-                    Stake {unit === 'tao' ? '(α)' : unit === 'usd' ? '($)' : '(α)'}
+                    Stake {unit === 'usd' ? '($)' : '(α)'}
                     {sortBy === 'stake' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
                   </th>
                   <th className="table-head">IP</th>
@@ -93,9 +94,9 @@ function LeaderboardContent() {
               <tbody>
                 {data?.items.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="table-cell py-8 text-center text-slate-400">
+                    <td colSpan={10} className="table-cell py-12 text-center text-slate-500">
                       No hotkeys yet.{' '}
-                      <Link href="/hotkeys" className="text-brand-100 hover:underline">
+                      <Link href="/hotkeys" className="link-brand">
                         Add hotkeys
                       </Link>{' '}
                       and run sync in Settings.
@@ -103,22 +104,28 @@ function LeaderboardContent() {
                   </tr>
                 ) : (
                   data?.items.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-800/30">
-                    <td className="table-cell">{item.rank ?? '—'}</td>
-                    <td className="table-cell">{formatNumber(item.f1)}</td>
-                    <td className="table-cell">{formatNumber(item.precision)}</td>
-                    <td className="table-cell">{formatNumber(item.recall)}</td>
-                    <td className="table-cell">{formatNumber(item.emission)}</td>
-                    <td className="table-cell">
-                      <Link href={`/hotkeys/${item.id}`} className="text-brand-100 hover:underline">
-                        {item.label || truncateAddress(item.hotkey, 8)}
-                      </Link>
-                    </td>
-                    <td className="table-cell">{item.uid ?? '—'}</td>
-                    <td className="table-cell">{format('stake', item.stake)}</td>
-                    <td className="table-cell font-mono text-xs">{item.axonIp ?? '—'}</td>
-                    <td className="table-cell">{item.axonPort ?? '—'}</td>
-                  </tr>
+                    <tr key={item.id} className="transition hover:bg-slate-800/25">
+                      <td className="table-cell">
+                        {item.rank != null ? (
+                          <span className="badge-brand">{item.rank}</span>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                      <td className="table-cell font-mono text-sm">{formatNumber(item.f1)}</td>
+                      <td className="table-cell font-mono text-sm">{formatNumber(item.precision)}</td>
+                      <td className="table-cell font-mono text-sm">{formatNumber(item.recall)}</td>
+                      <td className="table-cell font-mono text-sm">{formatNumber(item.emission)}</td>
+                      <td className="table-cell">
+                        <Link href={`/hotkeys/${item.id}`} className="link-brand font-medium">
+                          {item.label || truncateAddress(item.hotkey, 8)}
+                        </Link>
+                      </td>
+                      <td className="table-cell font-mono text-xs text-slate-400">{item.uid ?? '—'}</td>
+                      <td className="table-cell font-mono text-sm">{format('stake', item.stake)}</td>
+                      <td className="table-cell font-mono text-xs text-slate-400">{item.axonIp ?? '—'}</td>
+                      <td className="table-cell font-mono text-xs">{item.axonPort ?? '—'}</td>
+                    </tr>
                   ))
                 )}
               </tbody>
@@ -127,7 +134,7 @@ function LeaderboardContent() {
 
           {data && data.pagination.totalPages > 1 && (
             <div className="flex items-center justify-between">
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-slate-500">
                 Page {data.pagination.page} of {data.pagination.totalPages}
               </p>
               <div className="flex gap-2">

@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AuthGuard } from '@/components/AuthGuard';
-import { LoadingState } from '@/components/Layout';
+import { PageHeader } from '@/components/PageHeader';
+import { LoadingState, EmptyState } from '@/components/Layout';
 import { useTokenMetrics } from '@/hooks/useTokenMetrics';
 import { api, Coldkey, truncateAddress } from '@/lib/api-client';
 
@@ -50,13 +51,13 @@ function ColdkeysContent() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Coldkeys</h2>
-        <p className="text-slate-400">Manage coldkey addresses and monitor balances</p>
-      </div>
+      <PageHeader
+        title="Coldkeys"
+        description="Manage coldkey addresses and monitor wallet balances"
+      />
 
       <div className="card">
-        <h3 className="mb-4 font-semibold">Add Coldkey</h3>
+        <h3 className="mb-4 text-sm font-semibold text-white">Add Coldkey</h3>
         <form
           className="flex flex-wrap gap-3"
           onSubmit={(e) => {
@@ -86,10 +87,15 @@ function ColdkeysContent() {
 
       {isLoading ? (
         <LoadingState />
+      ) : !coldkeys?.length ? (
+        <EmptyState
+          title="No coldkeys yet"
+          description="Add a coldkey address above to track balances and link hotkeys."
+        />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-surface-border">
+        <div className="table-wrap overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-slate-900/50">
+            <thead>
               <tr>
                 <th className="table-head">Label</th>
                 <th className="table-head">Address</th>
@@ -102,7 +108,7 @@ function ColdkeysContent() {
             </thead>
             <tbody>
               {coldkeys?.map((c) => (
-                <tr key={c.id} className="hover:bg-slate-800/30">
+                <tr key={c.id} className="transition hover:bg-slate-800/25">
                   <td className="table-cell">
                     {editingId === c.id ? (
                       <form
@@ -126,15 +132,13 @@ function ColdkeysContent() {
                     )}
                   </td>
                   <td className="table-cell font-mono text-xs">{truncateAddress(c.address, 10)}</td>
-                  <td className="table-cell">{format('tao', Number(c.taoBalance))}</td>
-                  <td className="table-cell">{format('alpha', Number(c.alphaBalance))}</td>
-                  <td className="table-cell">{format('stake', Number(c.alphaStake))}</td>
+                  <td className="table-cell font-mono text-sm">{format('tao', Number(c.taoBalance))}</td>
+                  <td className="table-cell font-mono text-sm">{format('alpha', Number(c.alphaBalance))}</td>
+                  <td className="table-cell font-mono text-sm">{format('stake', Number(c.alphaStake))}</td>
                   <td className="table-cell">{c.hotkeys?.length ?? 0}</td>
                   <td className="table-cell">
                     <div className="flex gap-2">
-                      <button
-                        className="text-xs text-brand-100 hover:underline"
-                        onClick={() => {
+                      <button className="link-brand text-xs" onClick={() => {
                           setEditingId(c.id);
                           setEditLabel(c.label ?? '');
                         }}
@@ -142,7 +146,7 @@ function ColdkeysContent() {
                         Edit
                       </button>
                       <button
-                        className="text-xs text-red-400 hover:underline"
+                        className="btn-danger text-xs"
                         onClick={() => {
                           if (confirm('Delete this coldkey and all its hotkeys?')) {
                             deleteMutation.mutate(c.id);

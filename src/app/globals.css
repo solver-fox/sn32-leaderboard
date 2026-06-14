@@ -4,27 +4,125 @@
 
 @layer base {
   body {
-    @apply antialiased;
+    @apply min-h-screen antialiased text-slate-100;
+    background-color: #0a0e17;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.15), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.06), transparent);
+  }
+
+  ::selection {
+    @apply bg-brand-600/40 text-white;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-slate-700/80;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-600;
   }
 }
 
 @layer components {
+  .glass-panel {
+    @apply border border-surface-border bg-surface-card backdrop-blur-xl;
+  }
+
   .card {
-    @apply rounded-xl border border-surface-border bg-surface-card p-6 shadow-lg;
+    @apply glass-panel rounded-2xl p-6 shadow-card;
   }
+
+  .card-compact {
+    @apply glass-panel rounded-xl p-4 shadow-card;
+  }
+
   .btn-primary {
-    @apply rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:cursor-not-allowed disabled:opacity-50;
   }
+
   .btn-secondary {
-    @apply rounded-lg border border-surface-border bg-surface-card px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-700;
+    @apply inline-flex items-center justify-center rounded-xl border border-surface-border-strong bg-surface-elevated/80 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-slate-500/40 hover:bg-slate-800/80 focus:outline-none focus:ring-2 focus:ring-slate-500/30 disabled:cursor-not-allowed disabled:opacity-50;
   }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-sm font-medium text-slate-400 transition hover:bg-slate-800/60 hover:text-slate-200;
+  }
+
+  .btn-danger {
+    @apply btn-ghost text-red-400 hover:bg-red-500/10 hover:text-red-300;
+  }
+
   .input {
-    @apply w-full rounded-lg border border-surface-border bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500;
+    @apply w-full rounded-xl border border-surface-border bg-surface-elevated/90 px-3.5 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/20;
   }
+
+  .label {
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500;
+  }
+
+  .page-header {
+    @apply animate-fade-in;
+  }
+
+  .page-title {
+    @apply text-2xl font-semibold tracking-tight text-white;
+  }
+
+  .page-description {
+    @apply mt-1 text-sm text-slate-400;
+  }
+
+  .section-title {
+    @apply text-sm font-semibold uppercase tracking-wider text-slate-500;
+  }
+
+  .table-wrap {
+    @apply overflow-hidden rounded-2xl border border-surface-border bg-surface-elevated/40 shadow-card;
+  }
+
   .table-head {
-    @apply border-b border-surface-border px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400;
+    @apply border-b border-surface-border bg-slate-900/60 px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500;
   }
+
   .table-cell {
-    @apply border-b border-surface-border/50 px-4 py-3 text-sm text-slate-200;
+    @apply border-b border-surface-border/40 px-4 py-3.5 text-sm text-slate-300;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium;
+  }
+
+  .badge-brand {
+    @apply badge bg-brand-600/20 text-brand-200 ring-1 ring-brand-500/30;
+  }
+
+  .badge-success {
+    @apply badge bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/25;
+  }
+
+  .badge-muted {
+    @apply badge bg-slate-800 text-slate-400 ring-1 ring-surface-border;
+  }
+
+  .stat-value {
+    @apply mt-2 font-mono text-2xl font-semibold tracking-tight text-white;
+  }
+
+  .link-brand {
+    @apply text-brand-400 transition hover:text-brand-300 hover:underline;
+  }
+
+  .empty-state {
+    @apply card flex flex-col items-center justify-center py-16 text-center;
   }
 }

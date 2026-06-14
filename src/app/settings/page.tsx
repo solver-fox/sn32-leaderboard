@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AuthGuard } from '@/components/AuthGuard';
+import { PageHeader } from '@/components/PageHeader';
 import { LoadingState } from '@/components/Layout';
 import { api } from '@/lib/api-client';
 
@@ -74,13 +75,10 @@ function SettingsContent() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold">Settings</h2>
-        <p className="text-slate-400">Configure sync intervals and alerts</p>
-      </div>
+      <PageHeader title="Settings" description="Sync schedule, chain data refresh, and performance alerts" />
 
-      <section className="card max-w-xl">
-        <h3 className="mb-4 font-semibold">Sync Configuration</h3>
+      <section className="card max-w-2xl">
+        <h3 className="mb-1 text-sm font-semibold text-white">Sync Configuration</h3>
         <p className="mb-4 text-sm text-slate-400">
           Current interval: {syncConfig?.intervalMinutes ?? 10} minutes
         </p>
@@ -99,7 +97,7 @@ function SettingsContent() {
           </button>
         </div>
         {triggerSync.isSuccess && (
-          <p className="mt-2 text-sm text-green-400">
+          <p className="badge-success mt-3 inline-flex">
             Sync completed — {triggerSync.data?.hotkeysUpdated ?? 0} hotkey(s) updated
             {(triggerSync.data?.hotkeysNotFound ?? 0) > 0 &&
               `, ${triggerSync.data?.hotkeysNotFound} not found on subnet`}
@@ -111,30 +109,43 @@ function SettingsContent() {
         )}
       </section>
 
-      <section className="card max-w-xl">
-        <h3 className="mb-4 font-semibold">Create Alert</h3>
-        <div className="space-y-3">
-          <select className="input" value={alertType} onChange={(e) => setAlertType(e.target.value)}>
+      <section className="card max-w-2xl">
+        <h3 className="mb-1 text-sm font-semibold text-white">Create Alert</h3>
+        <p className="mb-4 text-sm text-slate-500">Get notified when miner performance drops below a threshold.</p>
+        <div className="space-y-4">
+          <div>
+            <label className="label">Alert type</label>
+            <select className="input" value={alertType} onChange={(e) => setAlertType(e.target.value)}>
             <option value="EMISSION_DROP">Emission Drop</option>
             <option value="RANK_DROP">Rank Drop</option>
             <option value="F1_DROP">F1 Drop</option>
           </select>
-          <select className="input" value={alertChannel} onChange={(e) => setAlertChannel(e.target.value)}>
+          </div>
+          <div>
+            <label className="label">Channel</label>
+            <select className="input" value={alertChannel} onChange={(e) => setAlertChannel(e.target.value)}>
             <option value="DISCORD">Discord Webhook</option>
             <option value="EMAIL">Email</option>
           </select>
-          <input
-            className="input"
-            placeholder="Threshold"
-            value={threshold}
-            onChange={(e) => setThreshold(e.target.value)}
-          />
-          <input
-            className="input"
-            placeholder="Webhook URL or email"
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-          />
+          </div>
+          <div>
+            <label className="label">Threshold</label>
+            <input
+              className="input"
+              placeholder="e.g. 10"
+              value={threshold}
+              onChange={(e) => setThreshold(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="label">Destination</label>
+            <input
+              className="input"
+              placeholder="Webhook URL or email"
+              value={destination}
+              onChange={(e) => setDestination(e.target.value)}
+            />
+          </div>
           <button
             className="btn-primary"
             onClick={() => createAlert.mutate()}
@@ -146,23 +157,27 @@ function SettingsContent() {
       </section>
 
       <section>
-        <h3 className="mb-4 text-lg font-semibold">Active Alerts</h3>
+        <h3 className="section-title mb-4">Active Alerts</h3>
         {alertsLoading ? (
           <LoadingState />
         ) : alerts?.length === 0 ? (
-          <div className="card text-center text-slate-400">No alerts configured.</div>
+          <div className="empty-state py-12">
+            <p className="font-medium text-slate-300">No alerts configured</p>
+            <p className="mt-1 text-sm text-slate-500">Create an alert above to monitor emission or score drops.</p>
+          </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {alerts?.map((a) => (
-              <div key={a.id} className="card flex items-center justify-between py-4">
+              <div key={a.id} className="card-compact flex items-center justify-between gap-4">
                 <div>
-                  <p className="font-medium">
-                    {a.type.replace('_', ' ')} via {a.channel}
-                  </p>
-                  <p className="text-sm text-slate-400">Threshold: {a.threshold}</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-medium text-slate-200">{a.type.replace('_', ' ')}</p>
+                    <span className="badge-muted">{a.channel}</span>
+                  </div>
+                  <p className="mt-1 text-xs text-slate-500">Threshold: {a.threshold}</p>
                 </div>
                 <button
-                  className="text-sm text-red-400 hover:underline"
+                  className="btn-danger text-xs"
                   onClick={() => deleteAlert.mutate(a.id)}
                 >
                   Remove

@@ -21,20 +21,20 @@ export function TokenPriceDisplay() {
   const { prices } = useTokenMetrics();
 
   return (
-    <div className="flex items-center gap-2 text-[11px] text-slate-400 sm:gap-4 sm:text-xs">
+    <div className="hidden items-center gap-2 rounded-xl border border-surface-border bg-surface-elevated/60 px-3 py-1.5 sm:flex lg:gap-3">
       <div className="flex items-center gap-1.5" title="TAO price (USD)">
-        <span className="font-medium text-slate-500">τ</span>
-        <span className="font-semibold text-slate-200">{formatUsd(prices.taoUsd)}</span>
+        <span className="badge-brand px-1.5 py-0 text-[10px]">τ</span>
+        <span className="font-mono text-xs font-medium text-slate-200">{formatUsd(prices.taoUsd)}</span>
       </div>
-      <span className="text-slate-600">·</span>
+      <span className="text-slate-700">|</span>
       <div
         className="flex items-center gap-1.5"
-        title={`SN32 Alpha · ${formatUsd(prices.alphaUsd, 4)} · ${formatTau(prices.alphaTao)} per α`}
+        title={`SN32 Alpha · ${formatUsd(prices.alphaUsd, 4)} · ${formatTau(prices.alphaTao)}/α`}
       >
-        <span className="font-medium text-slate-500">α</span>
-        <span className="hidden font-semibold text-slate-200 sm:inline">{formatUsd(prices.alphaUsd, 4)}</span>
-        <span className="font-semibold text-slate-200 sm:hidden">{formatUsd(prices.alphaUsd, 2)}</span>
-        <span className="hidden text-slate-500 sm:inline">({formatTau(prices.alphaTao)}/α)</span>
+        <span className="rounded-md bg-accent/15 px-1.5 py-0 text-[10px] font-semibold text-accent ring-1 ring-accent/25">
+          α
+        </span>
+        <span className="font-mono text-xs font-medium text-slate-200">{formatUsd(prices.alphaUsd, 4)}</span>
       </div>
     </div>
   );
