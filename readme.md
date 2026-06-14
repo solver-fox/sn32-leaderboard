@@ -311,45 +311,71 @@ Internal aggregation service
 
 # Technical Requirements
 
-## Frontend
+## Stack
 
-### Stack
-
-* React
-* TypeScript
-* TailAdmin Template
+* Next.js 15 (App Router)
+* React + TypeScript
+* Tailwind CSS
 * React Query
 * Recharts
 * Zustand
+* Prisma ORM + SQLite
+* node-cron (background sync)
 
 ### Pages
 
-* Dashboard
-* Leaderboard
-* Coldkeys
-* Hotkeys
-* Analytics
-* Settings
+* Dashboard (`/`)
+* Leaderboard (`/leaderboard`)
+* Coldkeys (`/coldkeys`)
+* Hotkeys (`/hotkeys`)
+* Hotkey detail (`/hotkeys/[id]`)
+* Settings (`/settings`)
+* Login (`/login`)
 
----
+### API Routes
 
-## Backend
+All API endpoints live under `/api/*`:
 
-### Stack
-
-* Node.js
-* Express or NestJS
-* Prisma ORM
-* PostgreSQL
-* Redis
-* BullMQ
+* Auth: `/api/auth/register`, `/api/auth/login`, `/api/auth/me`
+* Coldkeys, hotkeys, leaderboard, metrics, portfolio, alerts, sync
 
 ### Responsibilities
 
-* Data sync
+* Data sync (scheduled via node-cron)
 * Aggregation
-* Authentication
+* Authentication (JWT)
 * Alerting
+
+---
+
+## Getting Started
+
+Requires **Node.js 18+**.
+
+```bash
+# Install dependencies
+npm install
+
+# Copy environment file
+cp .env.example .env
+
+# Run database migrations (SQLite — no Docker required)
+npm run db:migrate
+
+# Start dev server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | SQLite path, e.g. `file:./dev.db` |
+| `JWT_SECRET` | Secret for signing auth tokens |
+| `SYNC_INTERVAL_MINUTES` | Sync interval (5, 10, 30, or 60) |
+| `SN32_API_URL` | SN32 metrics API base URL |
 
 ---
 
@@ -429,19 +455,14 @@ Internal aggregation service
 * Dashboard load time < 2 seconds
 * Sync success rate > 99%
 
-### Recommended Architecture
+### Architecture
 
 ```text
-React (TailAdmin)
+Next.js App (UI + API Routes)
         |
-        v
-Node.js API (NestJS)
+    SQLite (Prisma)
         |
-   PostgreSQL
-        |
-    Prisma ORM
-        |
-    BullMQ Jobs
+  node-cron Sync Job
         |
  SN32 API + Bittensor RPC
 ```
