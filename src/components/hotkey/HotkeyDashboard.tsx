@@ -61,7 +61,7 @@ export function HotkeyDashboard({ hotkeyId, variant, backHref }: HotkeyDashboard
           {(() => {
             const reg = getHotkeyRegistration(hotkey);
             return (
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 mt-2">
                 {reg.source === 'subnet' ? 'Registered' : 'Tracked since'} {reg.label} · Age {reg.age}
               </p>
             );

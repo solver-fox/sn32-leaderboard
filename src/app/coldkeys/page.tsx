@@ -133,7 +133,9 @@ function ColdkeysContent() {
                   </td>
                   <td className="table-cell font-mono text-xs">{truncateAddress(c.address, 10)}</td>
                   <td className="table-cell font-mono text-sm">{format('tao', Number(c.taoBalance))}</td>
-                  <td className="table-cell font-mono text-sm">{format('alpha', Number(c.alphaBalance))}</td>
+                  <td className="table-cell font-mono text-sm">
+                    {format('alpha', Number(c.alphaBalance) + Number(c.alphaStake))}
+                  </td>
                   <td className="table-cell font-mono text-sm">{format('stake', Number(c.alphaStake))}</td>
                   <td className="table-cell">{c.hotkeys?.length ?? 0}</td>
                   <td className="table-cell">

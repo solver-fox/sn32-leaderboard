@@ -8,7 +8,10 @@ export async function getPortfolioDashboard(userId: string) {
 
   const hotkeys = coldkeys.flatMap((c) => c.hotkeys);
   const totalTao = coldkeys.reduce((sum, c) => sum + Number(c.taoBalance), 0);
-  const totalAlpha = coldkeys.reduce((sum, c) => sum + Number(c.alphaBalance), 0);
+  const totalAlpha = coldkeys.reduce(
+    (sum, c) => sum + Number(c.alphaBalance) + Number(c.alphaStake),
+    0,
+  );
   const totalStake = coldkeys.reduce((sum, c) => sum + Number(c.alphaStake), 0);
 
   const emissions = hotkeys

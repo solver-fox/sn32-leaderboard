@@ -67,12 +67,70 @@ function raoToTao(value: number): number {
   return value / RAO;
 }
 
+function decodeAlphaRao(raw: unknown): number {
+  if (raw === null || raw === undefined) return 0;
+
+  const value = raw as { mantissa?: unknown; exponent?: unknown; bits?: unknown };
+  if (value.mantissa != null && value.exponent != null) {
+    const mantissa =
+      typeof value.mantissa === 'string' && value.mantissa.startsWith('0x')
+        ? BigInt(value.mantissa)
+        : BigInt(String(value.mantissa).replace(/,/g, ''));
+    const exponent = Number(value.exponent);
+    if (!Number.isFinite(exponent)) return 0;
+    return Number(mantissa) * 10 ** exponent;
+  }
+
+  if (value.bits != null) {
+    const bits =
+      typeof value.bits === 'string' && value.bits.startsWith('0x')
+        ? BigInt(value.bits)
+        : BigInt(String(value.bits).replace(/,/g, ''));
+    return Number(bits);
+  }
+
+  const numeric = Number(raw);
+  return Number.isFinite(numeric) ? numeric : 0;
+}
+
+async function fetchColdkeyHotkeyStakeRao(
+  q: Awaited<ReturnType<ApiPromise['query']>>['subtensorModule'],
+  hotkey: string,
+  coldkey: string,
+): Promise<number> {
+  try {
+    const [alphaV2Raw, alphaRaw] = await Promise.all([
+      q.alphaV2(hotkey, coldkey, NETUID),
+      q.alpha(hotkey, coldkey, NETUID),
+    ]);
+    const v2 = decodeAlphaRao(alphaV2Raw.toJSON());
+    const legacy = decodeAlphaRao(alphaRaw.toJSON());
+    return Math.max(v2, legacy);
+  } catch {
+    return 0;
+  }
+}
+
+async function fetchColdkeyStakeRao(
+  q: Awaited<ReturnType<ApiPromise['query']>>['subtensorModule'],
+  coldkey: string,
+  hotkeyAddresses: string[],
+): Promise<number> {
+  if (hotkeyAddresses.length === 0) return 0;
+
+  const stakes = await Promise.all(
+    hotkeyAddresses.map((hotkey) => fetchColdkeyHotkeyStakeRao(q, hotkey, coldkey)),
+  );
+  return stakes.reduce((sum, stake) => sum + stake, 0);
+}
+
 function decodeAxonIp(raw: unknown): string | null {
   if (raw === null || raw === undefined) return null;
   try {
     const value = BigInt(String(raw).replace(/,/g, ''));
-    if (value === 0n) return '0.0.0.0';
-    const n = Number(value & 0xffffffffn);
+    if (value === BigInt(0)) return '0.0.0.0';
+    const mask = BigInt('4294967295');
+    const n = Number(value & mask);
     return `${(n >>> 24) & 0xff}.${(n >>> 16) & 0xff}.${(n >>> 8) & 0xff}.${n & 0xff}`;
   } catch {
     return null;
@@ -237,16 +295,22 @@ export async function fetchMetricsForHotkeys(
   return metricsByHotkey;
 }
 
-export async function fetchColdkeyBalances(address: string): Promise<ColdkeyBalances> {
+export async function fetchColdkeyBalances(
+  address: string,
+  hotkeyAddresses: string[] = [],
+): Promise<ColdkeyBalances> {
   try {
     const api = await getApi();
+    const q = api.query.subtensorModule;
     const account = await api.query.system.account(normalizeAddress(address));
     const free = BigInt(account.data.free.toString());
+    const uniqueHotkeys = [...new Set(hotkeyAddresses.map(normalizeAddress))];
+    const alphaStakeRao = await fetchColdkeyStakeRao(q, normalizeAddress(address), uniqueHotkeys);
 
     return {
       taoBalance: Number(free) / RAO,
       alphaBalance: 0,
-      alphaStake: 0,
+      alphaStake: alphaStakeRao / RAO,
     };
   } catch {
     return { taoBalance: 0, alphaBalance: 0, alphaStake: 0 };

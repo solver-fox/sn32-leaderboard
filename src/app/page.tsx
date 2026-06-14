@@ -107,7 +107,9 @@ function DashboardContent() {
                     <td className="table-cell font-medium text-slate-800 dark:text-slate-200">{c.label || '—'}</td>
                     <td className="table-cell font-mono text-xs text-slate-400">{truncateAddress(c.address, 8)}</td>
                     <td className="table-cell font-mono text-sm">{format('tao', c.taoBalance)}</td>
-                    <td className="table-cell font-mono text-sm">{format('alpha', c.alphaBalance)}</td>
+                    <td className="table-cell font-mono text-sm">
+                      {format('alpha', c.alphaBalance + c.alphaStake)}
+                    </td>
                     <td className="table-cell font-mono text-sm">{format('stake', c.alphaStake)}</td>
                     <td className="table-cell">
                       <span className="badge-muted">{c.hotkeyCount}</span>

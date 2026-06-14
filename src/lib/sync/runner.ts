@@ -29,7 +29,10 @@ export async function runSyncJob(): Promise<SyncResult> {
 
     for (const coldkey of coldkeys) {
       result.coldkeysProcessed += 1;
-      const balances = await fetchColdkeyBalances(coldkey.address);
+      const balances = await fetchColdkeyBalances(
+        coldkey.address,
+        coldkey.hotkeys.map((h) => h.address),
+      );
 
       await prisma.coldkey.update({
         where: { id: coldkey.id },
