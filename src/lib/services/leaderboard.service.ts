@@ -30,12 +30,17 @@ export async function getLeaderboard(userId: string, query: LeaderboardQuery) {
       : {}),
   };
 
+  const orderBy: Prisma.HotkeyOrderByWithRelationInput | Prisma.HotkeyOrderByWithRelationInput[] =
+    sortBy === 'rank'
+      ? [{ rank: { sort: sortOrder, nulls: 'last' } }, { uid: 'asc' }]
+      : { [sortBy]: sortOrder };
+
   const [items, total] = await Promise.all([
     prisma.hotkey.findMany({
       where,
       skip,
       take: limit,
-      orderBy: { [sortBy]: sortOrder },
+      orderBy,
       include: { coldkey: { select: { label: true, address: true } } },
     }),
     prisma.hotkey.count({ where }),
@@ -48,13 +53,13 @@ export async function getLeaderboard(userId: string, query: LeaderboardQuery) {
       hotkey: h.address,
       label: h.label,
       uid: h.uid,
-      f1: h.f1 ? Number(h.f1) : null,
-      precision: h.precision ? Number(h.precision) : null,
-      recall: h.recall ? Number(h.recall) : null,
+      f1: h.f1 != null ? Number(h.f1) : null,
+      precision: h.precision != null ? Number(h.precision) : null,
+      recall: h.recall != null ? Number(h.recall) : null,
       fp: h.fp,
       fn: h.fn,
-      emission: h.emission ? Number(h.emission) : null,
-      incentive: h.incentive ? Number(h.incentive) : null,
+      emission: h.emission != null ? Number(h.emission) : null,
+      incentive: h.incentive != null ? Number(h.incentive) : null,
       lastUpdate: h.lastSyncAt,
       coldkeyLabel: h.coldkey.label,
     })),

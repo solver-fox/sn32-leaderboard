@@ -62,8 +62,8 @@ function LeaderboardContent() {
                   {[
                     ['rank', 'Rank'],
                     ['f1', 'F1'],
-                    ['precision', 'Precision'],
-                    ['recall', 'Recall'],
+                    ['precision', 'AP Score'],
+                    ['recall', 'FP Score'],
                     ['emission', 'Emission'],
                   ].map(([field, label]) => (
                     <th
@@ -80,7 +80,18 @@ function LeaderboardContent() {
                 </tr>
               </thead>
               <tbody>
-                {data?.items.map((item) => (
+                {data?.items.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="table-cell py-8 text-center text-slate-400">
+                      No hotkeys yet.{' '}
+                      <Link href="/hotkeys" className="text-brand-100 hover:underline">
+                        Add hotkeys
+                      </Link>{' '}
+                      and run sync in Settings.
+                    </td>
+                  </tr>
+                ) : (
+                  data?.items.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-800/30">
                     <td className="table-cell">{item.rank ?? '—'}</td>
                     <td className="table-cell">{formatNumber(item.f1)}</td>
@@ -94,7 +105,8 @@ function LeaderboardContent() {
                     </td>
                     <td className="table-cell">{item.uid ?? '—'}</td>
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </div>

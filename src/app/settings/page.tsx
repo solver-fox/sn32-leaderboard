@@ -62,7 +62,14 @@ function SettingsContent() {
   });
 
   const triggerSync = useMutation({
-    mutationFn: () => api.post('/sync/trigger', {}),
+    mutationFn: () => api.post<{ hotkeysUpdated: number; hotkeysNotFound: number }>('/sync/trigger', {}),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+      queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+      queryClient.invalidateQueries({ queryKey: ['hotkeys'] });
+      queryClient.invalidateQueries({ queryKey: ['coldkeys'] });
+      queryClient.invalidateQueries({ queryKey: ['metrics'] });
+    },
   });
 
   return (
@@ -92,7 +99,15 @@ function SettingsContent() {
           </button>
         </div>
         {triggerSync.isSuccess && (
-          <p className="mt-2 text-sm text-green-400">Sync completed successfully.</p>
+          <p className="mt-2 text-sm text-green-400">
+            Sync completed — {triggerSync.data?.hotkeysUpdated ?? 0} hotkey(s) updated
+            {(triggerSync.data?.hotkeysNotFound ?? 0) > 0 &&
+              `, ${triggerSync.data?.hotkeysNotFound} not found on subnet`}
+            .
+          </p>
+        )}
+        {triggerSync.isError && (
+          <p className="mt-2 text-sm text-red-400">Sync failed. Check server logs and RPC connectivity.</p>
         )}
       </section>
 

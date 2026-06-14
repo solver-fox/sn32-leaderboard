@@ -375,7 +375,13 @@ Open [http://localhost:3000](http://localhost:3000).
 | `DATABASE_URL` | SQLite path, e.g. `file:./dev.db` |
 | `JWT_SECRET` | Secret for signing auth tokens |
 | `SYNC_INTERVAL_MINUTES` | Sync interval (5, 10, 30, or 60) |
-| `SN32_API_URL` | SN32 metrics API base URL |
+| `BITTENSOR_RPC_URL` | Finney subtensor WebSocket RPC (default: `wss://entrypoint-finney.opentensor.ai:443`) |
+| `BITTENSOR_NETUID` | Subnet to query (default: `32`) |
+| `WANDB_ENTITY` | WandB entity for SN32 eval scores (default: `itsai-dev`) |
+| `WANDB_PROJECT` | WandB project (default: `subnet32`) |
+| `SN32_MAIN_VALIDATOR_UID` | Main validator UID for eval scores (default: `222`, same as [HF leaderboard](https://huggingface.co/spaces/sergak0/ai-detection-leaderboard)) |
+| `SN32_EVAL_LOOKBACK_DAYS` | How far back to search WandB runs (default: `7`) |
+| `SN32_METRICS_URL` | Optional override URL for custom metrics JSON |
 
 ---
 
