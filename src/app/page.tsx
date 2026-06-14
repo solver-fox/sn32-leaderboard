@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { AuthGuard } from '@/components/AuthGuard';
 import { StatCard, LoadingState } from '@/components/Layout';
+import { useTokenMetrics } from '@/hooks/useTokenMetrics';
 import { api, PortfolioDashboard, formatNumber, truncateAddress } from '@/lib/api-client';
 
 function DashboardContent() {
@@ -11,6 +12,7 @@ function DashboardContent() {
     queryKey: ['portfolio'],
     queryFn: () => api.get<PortfolioDashboard>('/portfolio/dashboard'),
   });
+  const { format, fieldLabel, columnLabel, unit } = useTokenMetrics();
 
   if (isLoading) return <LoadingState />;
   if (!data) return null;
@@ -27,12 +29,21 @@ function DashboardContent() {
       <section>
         <h3 className="mb-4 text-lg font-semibold text-slate-200">Coldkey Summary</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <StatCard label="Total TAO" value={formatNumber(coldkeySummary.totalTao)} />
-          <StatCard label="Total Alpha" value={formatNumber(coldkeySummary.totalAlpha)} />
-          <StatCard label="Total Stake" value={formatNumber(coldkeySummary.totalStake)} />
-          <StatCard label="Daily Emission" value={formatNumber(coldkeySummary.dailyEmission)} />
-          <StatCard label="Weekly Emission" value={formatNumber(coldkeySummary.weeklyEmission)} />
-          <StatCard label="Monthly Emission" value={formatNumber(coldkeySummary.monthlyEmission)} />
+          <StatCard label={fieldLabel('tao')} value={format('tao', coldkeySummary.totalTao)} />
+          <StatCard label={fieldLabel('alpha')} value={format('alpha', coldkeySummary.totalAlpha)} />
+          <StatCard label={fieldLabel('stake')} value={format('stake', coldkeySummary.totalStake)} />
+          <StatCard
+            label={fieldLabel('emission')}
+            value={format('emission', coldkeySummary.dailyEmission)}
+          />
+          <StatCard
+            label={unit === 'usd' ? 'Weekly Emission' : fieldLabel('emission').replace('Daily', 'Weekly')}
+            value={format('emission', coldkeySummary.weeklyEmission)}
+          />
+          <StatCard
+            label={unit === 'usd' ? 'Monthly Emission' : fieldLabel('emission').replace('Daily', 'Monthly')}
+            value={format('emission', coldkeySummary.monthlyEmission)}
+          />
         </div>
       </section>
 
@@ -76,15 +87,15 @@ function DashboardContent() {
             </Link>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-surface-border">
-            <table className="w-full">
+          <div className="overflow-x-auto rounded-xl border border-surface-border">
+            <table className="w-full min-w-[640px]">
               <thead className="bg-slate-900/50">
                 <tr>
                   <th className="table-head">Label</th>
                   <th className="table-head">Address</th>
-                  <th className="table-head">TAO</th>
-                  <th className="table-head">Alpha</th>
-                  <th className="table-head">Stake</th>
+                  <th className="table-head">{columnLabel('tao')}</th>
+                  <th className="table-head">{columnLabel('alpha')}</th>
+                  <th className="table-head">{columnLabel('stake')}</th>
                   <th className="table-head">Miners</th>
                 </tr>
               </thead>
@@ -93,9 +104,9 @@ function DashboardContent() {
                   <tr key={c.id} className="hover:bg-slate-800/30">
                     <td className="table-cell">{c.label || '—'}</td>
                     <td className="table-cell font-mono text-xs">{truncateAddress(c.address, 8)}</td>
-                    <td className="table-cell">{formatNumber(c.taoBalance)}</td>
-                    <td className="table-cell">{formatNumber(c.alphaBalance)}</td>
-                    <td className="table-cell">{formatNumber(c.alphaStake)}</td>
+                    <td className="table-cell">{format('tao', c.taoBalance)}</td>
+                    <td className="table-cell">{format('alpha', c.alphaBalance)}</td>
+                    <td className="table-cell">{format('stake', c.alphaStake)}</td>
                     <td className="table-cell">{c.hotkeyCount}</td>
                   </tr>
                 ))}

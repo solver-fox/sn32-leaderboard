@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { AuthGuard } from '@/components/AuthGuard';
 import { LoadingState } from '@/components/Layout';
+import { useTokenMetrics } from '@/hooks/useTokenMetrics';
 import { api, LeaderboardItem, formatNumber, truncateAddress } from '@/lib/api-client';
 
 interface LeaderboardResponse {
@@ -17,6 +18,7 @@ function LeaderboardContent() {
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState('rank');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const { format, unit } = useTokenMetrics();
 
   const { data, isLoading } = useQuery({
     queryKey: ['leaderboard', search, page, sortBy, sortOrder],
@@ -81,7 +83,7 @@ function LeaderboardContent() {
                     className="table-head cursor-pointer select-none hover:text-slate-200"
                     onClick={() => toggleSort('stake')}
                   >
-                    Stake (α)
+                    Stake {unit === 'tao' ? '(α)' : unit === 'usd' ? '($)' : '(α)'}
                     {sortBy === 'stake' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
                   </th>
                   <th className="table-head">IP</th>
@@ -113,7 +115,7 @@ function LeaderboardContent() {
                       </Link>
                     </td>
                     <td className="table-cell">{item.uid ?? '—'}</td>
-                    <td className="table-cell">{formatNumber(item.stake)}</td>
+                    <td className="table-cell">{format('stake', item.stake)}</td>
                     <td className="table-cell font-mono text-xs">{item.axonIp ?? '—'}</td>
                     <td className="table-cell">{item.axonPort ?? '—'}</td>
                   </tr>

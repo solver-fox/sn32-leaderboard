@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AuthGuard } from '@/components/AuthGuard';
 import { LoadingState } from '@/components/Layout';
-import { api, Coldkey, formatNumber, truncateAddress } from '@/lib/api-client';
+import { useTokenMetrics } from '@/hooks/useTokenMetrics';
+import { api, Coldkey, truncateAddress } from '@/lib/api-client';
 
 function ColdkeysContent() {
   const queryClient = useQueryClient();
@@ -17,6 +18,7 @@ function ColdkeysContent() {
     queryKey: ['coldkeys'],
     queryFn: () => api.get<Coldkey[]>('/coldkeys'),
   });
+  const { format, columnLabel } = useTokenMetrics();
 
   const createMutation = useMutation({
     mutationFn: () => api.post('/coldkeys', { address, label: label || undefined }),
@@ -91,9 +93,9 @@ function ColdkeysContent() {
               <tr>
                 <th className="table-head">Label</th>
                 <th className="table-head">Address</th>
-                <th className="table-head">TAO</th>
-                <th className="table-head">Alpha</th>
-                <th className="table-head">Stake</th>
+                <th className="table-head">{columnLabel('tao')}</th>
+                <th className="table-head">{columnLabel('alpha')}</th>
+                <th className="table-head">{columnLabel('stake')}</th>
                 <th className="table-head">Hotkeys</th>
                 <th className="table-head">Actions</th>
               </tr>
@@ -124,9 +126,9 @@ function ColdkeysContent() {
                     )}
                   </td>
                   <td className="table-cell font-mono text-xs">{truncateAddress(c.address, 10)}</td>
-                  <td className="table-cell">{formatNumber(Number(c.taoBalance))}</td>
-                  <td className="table-cell">{formatNumber(Number(c.alphaBalance))}</td>
-                  <td className="table-cell">{formatNumber(Number(c.alphaStake))}</td>
+                  <td className="table-cell">{format('tao', Number(c.taoBalance))}</td>
+                  <td className="table-cell">{format('alpha', Number(c.alphaBalance))}</td>
+                  <td className="table-cell">{format('stake', Number(c.alphaStake))}</td>
                   <td className="table-cell">{c.hotkeys?.length ?? 0}</td>
                   <td className="table-cell">
                     <div className="flex gap-2">

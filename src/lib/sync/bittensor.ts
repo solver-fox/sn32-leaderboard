@@ -34,6 +34,7 @@ const RPC_URL = process.env.BITTENSOR_RPC_URL || 'wss://entrypoint-finney.opente
 const SN32_METRICS_URL = process.env.SN32_METRICS_URL || '';
 const DAILY_EMISSION_BLOCKS = 20;
 const BLOCK_TIME_MS = 12_000;
+const PRICE_CACHE_MS = 60 * 1000;
 const U16_MAX = 65535;
 const RAO = 1_000_000_000;
 
@@ -257,4 +258,61 @@ export function findMinerMetrics(
   hotkeyAddress: string,
 ): SubnetMinerMetrics | undefined {
   return metricsByHotkey.get(normalizeKey(hotkeyAddress));
+}
+
+let taoUsdCache: { value: number; expiresAt: number } | null = null;
+
+export async function fetchTaoUsdPrice(): Promise<number> {
+  if (taoUsdCache && taoUsdCache.expiresAt > Date.now()) {
+    return taoUsdCache.value;
+  }
+
+  try {
+    const res = await fetch(
+      'https://api.coingecko.com/api/v3/simple/price?ids=bittensor&vs_currencies=usd',
+      { signal: AbortSignal.timeout(10000) },
+    );
+    if (!res.ok) return taoUsdCache?.value ?? 0;
+    const data = (await res.json()) as { bittensor?: { usd?: number } };
+    const value = data.bittensor?.usd ?? 0;
+    taoUsdCache = { value, expiresAt: Date.now() + PRICE_CACHE_MS };
+    return value;
+  } catch {
+    return taoUsdCache?.value ?? 0;
+  }
+}
+
+let alphaTaoCache: { value: number; expiresAt: number } | null = null;
+
+function getRpcProvider(api: ApiPromise): WsProvider | null {
+  const candidates = [
+    api.connectProvider,
+    (api as unknown as { _rpcCore?: { provider?: WsProvider } })._rpcCore?.provider,
+  ];
+  for (const provider of candidates) {
+    if (provider && typeof provider.send === 'function') return provider;
+  }
+  return null;
+}
+
+export async function fetchAlphaTaoPrice(): Promise<number> {
+  if (alphaTaoCache && alphaTaoCache.expiresAt > Date.now()) {
+    return alphaTaoCache.value;
+  }
+
+  try {
+    const api = await getApi();
+    const provider = getRpcProvider(api);
+    if (!provider) return alphaTaoCache?.value ?? 0;
+
+    const result = await provider.send<string | number>('swap_currentAlphaPrice', [NETUID]);
+    const rao = Number(result);
+    if (!rao || rao <= 0) return alphaTaoCache?.value ?? 0;
+
+    const value = rao / RAO;
+    alphaTaoCache = { value, expiresAt: Date.now() + PRICE_CACHE_MS };
+    return value;
+  } catch {
+    return alphaTaoCache?.value ?? 0;
+  }
 }

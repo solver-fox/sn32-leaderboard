@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
+import { TokenUnitSwitcher } from '@/components/TokenUnitSwitcher';
+import { TokenPriceDisplay } from '@/components/TokenPriceDisplay';
 
 const nav = [
   { href: '/', label: 'Dashboard' },
@@ -55,8 +57,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       <main className="ml-64 flex-1">
-        <header className="sticky top-0 z-10 flex h-16 items-center border-b border-surface-border bg-surface/80 px-8 backdrop-blur">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b border-surface-border bg-surface/80 px-8 backdrop-blur">
           <h1 className="text-lg font-semibold text-slate-100">Bittensor SN32 Analytics</h1>
+          <div className="flex items-center gap-4">
+            <TokenPriceDisplay />
+            <TokenUnitSwitcher />
+          </div>
         </header>
         <div className="p-8">{children}</div>
       </main>
