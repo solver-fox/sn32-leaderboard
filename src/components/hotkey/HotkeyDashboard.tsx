@@ -48,7 +48,7 @@ export function HotkeyDashboard({ hotkeyId, variant, backHref }: HotkeyDashboard
               <span aria-hidden>←</span> Back to hotkeys
             </Link>
           )}
-          <h2 className={`font-semibold tracking-tight text-white ${backHref ? 'mt-2 text-2xl' : isPanel ? 'text-lg' : 'text-2xl'}`}>
+          <h2 className={`font-semibold tracking-tight text-slate-900 dark:text-white ${backHref ? 'mt-2 text-2xl' : isPanel ? 'text-lg' : 'text-2xl'}`}>
             {hotkey.label || 'Hotkey'}
           </h2>
           <p className="truncate font-mono text-xs text-slate-500">{hotkey.address}</p>
@@ -90,17 +90,17 @@ export function HotkeyDashboard({ hotkeyId, variant, backHref }: HotkeyDashboard
         <HotkeyEvalStats current={metrics.current} />
       </section>
 
-      <div className="shrink-0">
+      <div className="shrink-0 my-4">
         <MetricRangePicker range={range} onChange={setRange} />
       </div>
 
       {!isPanel && <HotkeyMetricCharts history={metrics.history} />}
 
       <section
-        className={`overflow-hidden rounded-2xl border border-surface-border bg-surface-elevated/40 shadow-card ${isPanel ? 'flex min-h-0 flex-1 flex-col' : 'card p-0'}`}
+        className={`overflow-hidden rounded-2xl border border-surface-border bg-surface-elevated/40 ${isPanel ? 'flex min-h-0 flex-1 flex-col' : 'card p-0'}`}
       >
         <div className="shrink-0 border-b border-surface-border px-4 py-3.5">
-          <p className="text-sm font-semibold text-white">History</p>
+          <p className="text-sm font-semibold text-slate-900 dark:text-white">History</p>
           <p className="text-xs text-slate-500">
             Timestamps where weight, reward, FP, F1, AP, or rank changed
           </p>
@@ -138,12 +138,12 @@ export function HotkeyListItem({
       className={`group cursor-pointer border-b border-surface-border/60 px-4 py-3.5 transition ${
         selected
           ? 'border-l-2 border-l-brand-500 bg-brand-600/10'
-          : 'border-l-2 border-l-transparent hover:bg-slate-800/40'
+          : 'border-l-2 border-l-transparent hover:bg-slate-100 dark:hover:bg-slate-800/40'
       }`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className={`truncate text-sm font-medium ${selected ? 'text-brand-200' : 'text-slate-200'}`}>
+          <p className={`truncate text-sm font-medium ${selected ? 'text-brand-700 dark:text-brand-200' : 'text-slate-800 dark:text-slate-200'}`}>
             {hotkey.label || truncateAddress(hotkey.address, 8)}
           </p>
           <p className="truncate font-mono text-[11px] text-slate-500">{truncateAddress(hotkey.address, 10)}</p>

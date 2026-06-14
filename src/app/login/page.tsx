@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
 import { ApiError } from '@/lib/api-client';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function LoginPage() {
   const [isRegister, setIsRegister] = useState(false);
@@ -34,19 +35,23 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="relative flex min-h-screen">
+      <div className="absolute right-6 top-6 z-10">
+        <ThemeToggle />
+      </div>
+
       <div className="hidden flex-1 flex-col justify-between border-r border-surface-border bg-surface-elevated/50 p-12 lg:flex">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-bold text-white shadow-glow">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-bold text-white">
             32
           </div>
-          <span className="text-lg font-semibold text-white">SN32 Tracker</span>
+          <span className="text-lg font-semibold text-slate-900 dark:text-white">SN32 Tracker</span>
         </div>
         <div className="max-w-md">
-          <h2 className="text-3xl font-semibold tracking-tight text-white">
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
             Monitor your subnet 32 miners with clarity
           </h2>
-          <p className="mt-4 text-slate-400">
+          <p className="mt-4 text-slate-600 dark:text-slate-400">
             Track coldkey balances, hotkey performance, eval scores, and emissions — synced from
             chain and validator data.
           </p>
@@ -80,10 +85,10 @@ export default function LoginPage() {
           </div>
 
           <div className="card">
-            <h1 className="text-xl font-semibold text-white">
+            <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
               {isRegister ? 'Create account' : 'Welcome back'}
             </h1>
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
               {isRegister ? 'Start tracking your miners' : 'Sign in to your dashboard'}
             </p>
 

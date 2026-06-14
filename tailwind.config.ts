@@ -25,16 +25,12 @@ const config: Config = {
           muted: '#0891b2',
         },
         surface: {
-          DEFAULT: '#0a0e17',
-          elevated: '#0f1420',
-          card: 'rgba(17, 24, 39, 0.72)',
-          border: 'rgba(148, 163, 184, 0.12)',
-          'border-strong': 'rgba(148, 163, 184, 0.2)',
+          DEFAULT: 'var(--color-surface)',
+          elevated: 'var(--color-surface-elevated)',
+          card: 'var(--color-surface-card)',
+          border: 'var(--color-surface-border)',
+          'border-strong': 'var(--color-surface-border-strong)',
         },
-      },
-      boxShadow: {
-        card: '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 4px 24px -4px rgba(0,0,0,0.45)',
-        glow: '0 0 40px -10px rgba(99, 102, 241, 0.35)',
       },
       animation: {
         'fade-in': 'fadeIn 0.35s ease-out',

@@ -104,7 +104,7 @@ function LeaderboardContent() {
                   </tr>
                 ) : (
                   data?.items.map((item) => (
-                    <tr key={item.id} className="transition hover:bg-slate-800/25">
+                    <tr key={item.id} className="transition hover:bg-slate-100 dark:hover:bg-slate-800/25">
                       <td className="table-cell">
                         {item.rank != null ? (
                           <span className="badge-brand">{item.rank}</span>

@@ -57,7 +57,7 @@ function ColdkeysContent() {
       />
 
       <div className="card">
-        <h3 className="mb-4 text-sm font-semibold text-white">Add Coldkey</h3>
+        <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">Add Coldkey</h3>
         <form
           className="flex flex-wrap gap-3"
           onSubmit={(e) => {
@@ -108,7 +108,7 @@ function ColdkeysContent() {
             </thead>
             <tbody>
               {coldkeys?.map((c) => (
-                <tr key={c.id} className="transition hover:bg-slate-800/25">
+                <tr key={c.id} className="transition hover:bg-slate-100 dark:hover:bg-slate-800/25">
                   <td className="table-cell">
                     {editingId === c.id ? (
                       <form

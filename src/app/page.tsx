@@ -103,8 +103,8 @@ function DashboardContent() {
               </thead>
               <tbody>
                 {coldkeys.map((c) => (
-                  <tr key={c.id} className="transition hover:bg-slate-800/25">
-                    <td className="table-cell font-medium text-slate-200">{c.label || '—'}</td>
+                  <tr key={c.id} className="transition hover:bg-slate-100 dark:hover:bg-slate-800/25">
+                    <td className="table-cell font-medium text-slate-800 dark:text-slate-200">{c.label || '—'}</td>
                     <td className="table-cell font-mono text-xs text-slate-400">{truncateAddress(c.address, 8)}</td>
                     <td className="table-cell font-mono text-sm">{format('tao', c.taoBalance)}</td>
                     <td className="table-cell font-mono text-sm">{format('alpha', c.alphaBalance)}</td>

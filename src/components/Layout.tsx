@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
 import { TokenUnitSwitcher } from '@/components/TokenUnitSwitcher';
 import { TokenPriceDisplay } from '@/components/TokenPriceDisplay';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const nav = [
   { href: '/', label: 'Dashboard', icon: DashboardIcon },
@@ -37,11 +38,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen">
       <aside className="fixed inset-y-0 left-0 z-20 flex w-[260px] flex-col border-r border-surface-border bg-surface-elevated/95 backdrop-blur-xl">
         <div className="flex h-16 items-center gap-3 border-b border-surface-border px-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-bold text-white shadow-glow">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-bold text-white">
             32
           </div>
           <div>
-            <p className="text-sm font-semibold tracking-tight text-white">SN32 Tracker</p>
+            <p className="text-sm font-semibold tracking-tight text-slate-900 dark:text-white">SN32 Tracker</p>
             <p className="text-[11px] text-slate-500">Subnet 32 Analytics</p>
           </div>
         </div>
@@ -57,8 +58,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 href={item.href}
                 className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                   active
-                    ? 'bg-brand-600/15 text-brand-200 ring-1 ring-brand-500/25'
-                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                    ? 'bg-brand-600/15 text-brand-700 ring-1 ring-brand-500/25 dark:text-brand-200'
+                    : 'text-slate-600 hover:bg-slate-200/70 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-200'
                 }`}
               >
                 <Icon className={`h-4 w-4 shrink-0 ${active ? 'text-brand-400' : 'text-slate-500 group-hover:text-slate-400'}`} />
@@ -69,12 +70,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="border-t border-surface-border p-4">
-          <div className="flex items-center gap-3 rounded-xl bg-slate-900/50 p-3 ring-1 ring-surface-border">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-600/20 text-sm font-semibold text-brand-300">
+          <div className="flex items-center gap-3 rounded-xl bg-slate-100 p-3 ring-1 ring-surface-border dark:bg-slate-900/50">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-600/20 text-sm font-semibold text-brand-600 dark:text-brand-300">
               {initial}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-slate-200">{user?.name || 'Account'}</p>
+              <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">{user?.name || 'Account'}</p>
               <p className="truncate text-xs text-slate-500">{user?.email}</p>
             </div>
           </div>
@@ -88,9 +89,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b border-surface-border bg-surface/70 px-6 backdrop-blur-xl lg:px-8">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Overview</p>
-            <h1 className="text-base font-semibold text-white">{pageTitle(pathname)}</h1>
+            <h1 className="text-base font-semibold text-slate-900 dark:text-white">{pageTitle(pathname)}</h1>
           </div>
           <div className="flex items-center gap-3 lg:gap-4">
+            <ThemeToggle />
             <TokenPriceDisplay />
             <div className="hidden h-6 w-px bg-surface-border sm:block" />
             <TokenUnitSwitcher />
@@ -149,7 +151,7 @@ export function EmptyState({
 }) {
   return (
     <div className="empty-state">
-      <p className="font-medium text-slate-300">{title}</p>
+      <p className="font-medium text-slate-700 dark:text-slate-300">{title}</p>
       {description && <p className="mt-1 max-w-sm text-sm text-slate-500">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>

@@ -78,7 +78,7 @@ function SettingsContent() {
       <PageHeader title="Settings" description="Sync schedule, chain data refresh, and performance alerts" />
 
       <section className="card max-w-2xl">
-        <h3 className="mb-1 text-sm font-semibold text-white">Sync Configuration</h3>
+        <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-white">Sync Configuration</h3>
         <p className="mb-4 text-sm text-slate-400">
           Current interval: {syncConfig?.intervalMinutes ?? 10} minutes
         </p>
@@ -110,7 +110,7 @@ function SettingsContent() {
       </section>
 
       <section className="card max-w-2xl">
-        <h3 className="mb-1 text-sm font-semibold text-white">Create Alert</h3>
+        <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-white">Create Alert</h3>
         <p className="mb-4 text-sm text-slate-500">Get notified when miner performance drops below a threshold.</p>
         <div className="space-y-4">
           <div>
@@ -171,7 +171,7 @@ function SettingsContent() {
               <div key={a.id} className="card-compact flex items-center justify-between gap-4">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-medium text-slate-200">{a.type.replace('_', ' ')}</p>
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{a.type.replace('_', ' ')}</p>
                     <span className="badge-muted">{a.channel}</span>
                   </div>
                   <p className="mt-1 text-xs text-slate-500">Threshold: {a.threshold}</p>

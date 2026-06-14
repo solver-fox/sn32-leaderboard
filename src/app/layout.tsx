@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import { Providers } from '@/components/Providers';
+import { ThemeScript } from '@/components/ThemeScript';
 import './globals.css';
 
 const inter = Inter({
@@ -22,7 +23,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans`}>
         <Providers>{children}</Providers>
       </body>

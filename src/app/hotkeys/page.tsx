@@ -65,7 +65,7 @@ function HotkeysContent() {
       />
 
       <div className="card shrink-0">
-        <h3 className="mb-4 text-sm font-semibold text-white">Add Hotkey</h3>
+        <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">Add Hotkey</h3>
         <form
           className="flex flex-wrap gap-3"
           onSubmit={(e) => {

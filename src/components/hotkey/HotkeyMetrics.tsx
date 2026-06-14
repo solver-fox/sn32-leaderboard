@@ -32,8 +32,8 @@ export function MetricRangePicker({
           type="button"
           className={`rounded-xl px-3 py-1.5 text-xs font-medium transition ${
             range === r
-              ? 'bg-brand-600 text-white shadow-sm ring-1 ring-brand-500/40'
-              : 'border border-surface-border bg-surface-elevated/60 text-slate-400 hover:border-slate-500/40 hover:text-slate-200'
+              ? 'bg-brand-600 text-white ring-1 ring-brand-500/40'
+              : 'border border-surface-border bg-surface-elevated/60 text-slate-600 hover:border-slate-300 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-500/40 dark:hover:text-slate-200'
           }`}
           onClick={() => onChange(r)}
         >
@@ -73,7 +73,7 @@ export function HotkeyHistoryTable({
   return (
     <div className={`overflow-x-auto ${compact ? 'max-h-[420px] overflow-y-auto' : ''}`}>
       <table className="w-full min-w-[640px]">
-        <thead className="sticky top-0 z-[1] bg-slate-900/95 backdrop-blur-sm">
+        <thead className="sticky top-0 z-[1] bg-slate-100/95 backdrop-blur-sm dark:bg-slate-900/95">
           <tr>
             <th className="table-head">Time</th>
             <th className="table-head">Weight</th>
@@ -86,7 +86,7 @@ export function HotkeyHistoryTable({
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.timestamp} className="transition hover:bg-slate-800/25">
+            <tr key={row.timestamp} className="transition hover:bg-slate-100 dark:hover:bg-slate-800/25">
               <td className="table-cell whitespace-nowrap font-mono text-xs text-slate-400">
                 {formatMetricTimestamp(row.timestamp)}
               </td>

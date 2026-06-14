@@ -26,8 +26,8 @@ export function TokenUnitSwitcher() {
           onClick={() => setUnit(id)}
           className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
             unit === id
-              ? 'bg-brand-600 text-white shadow-sm'
-              : 'text-slate-500 hover:text-slate-300'
+              ? 'bg-brand-600 text-white'
+              : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
           }`}
         >
           {label}
