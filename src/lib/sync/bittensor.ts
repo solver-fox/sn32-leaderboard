@@ -38,6 +38,8 @@ const PRICE_CACHE_MS = 60 * 1000;
 const U16_MAX = 65535;
 const RAO = 1_000_000_000;
 
+type SubtensorModule = ApiPromise['query']['subtensorModule'];
+
 let apiPromise: Promise<ApiPromise> | null = null;
 
 async function getApi(): Promise<ApiPromise> {
@@ -94,7 +96,7 @@ function decodeAlphaRao(raw: unknown): number {
 }
 
 async function fetchColdkeyHotkeyStakeRao(
-  q: Awaited<ReturnType<ApiPromise['query']>>['subtensorModule'],
+  q: SubtensorModule,
   hotkey: string,
   coldkey: string,
 ): Promise<number> {
@@ -112,7 +114,7 @@ async function fetchColdkeyHotkeyStakeRao(
 }
 
 async function fetchColdkeyStakeRao(
-  q: Awaited<ReturnType<ApiPromise['query']>>['subtensorModule'],
+  q: SubtensorModule,
   coldkey: string,
   hotkeyAddresses: string[],
 ): Promise<number> {
@@ -145,7 +147,7 @@ function parseAxonInfo(raw: unknown): { ip: string | null; port: number | null }
 }
 
 async function fetchHotkeyAxonAndStake(
-  q: Awaited<ReturnType<ApiPromise['query']>>['subtensorModule'],
+  q: SubtensorModule,
   hotkey: string,
   uid: number,
 ): Promise<{ stake: number | null; axonIp: string | null; axonPort: number | null }> {
@@ -172,7 +174,7 @@ async function fetchHotkeyAxonAndStake(
 
 async function fetchRegistrationInfo(
   api: ApiPromise,
-  q: Awaited<ReturnType<ApiPromise['query']>>['subtensorModule'],
+  q: SubtensorModule,
   uid: number,
 ): Promise<{ registeredBlock: number | null; registeredAt: Date | null }> {
   try {
@@ -303,7 +305,8 @@ export async function fetchColdkeyBalances(
     const api = await getApi();
     const q = api.query.subtensorModule;
     const account = await api.query.system.account(normalizeAddress(address));
-    const free = BigInt(account.data.free.toString());
+    const accountJson = account.toJSON() as { data?: { free?: string | number } };
+    const free = BigInt(String(accountJson.data?.free ?? 0));
     const uniqueHotkeys = [...new Set(hotkeyAddresses.map(normalizeAddress))];
     const alphaStakeRao = await fetchColdkeyStakeRao(q, normalizeAddress(address), uniqueHotkeys);
 
@@ -349,13 +352,8 @@ export async function fetchTaoUsdPrice(): Promise<number> {
 let alphaTaoCache: { value: number; expiresAt: number } | null = null;
 
 function getRpcProvider(api: ApiPromise): WsProvider | null {
-  const candidates = [
-    api.connectProvider,
-    (api as unknown as { _rpcCore?: { provider?: WsProvider } })._rpcCore?.provider,
-  ];
-  for (const provider of candidates) {
-    if (provider && typeof provider.send === 'function') return provider;
-  }
+  const provider = (api as unknown as { _rpcCore?: { provider?: WsProvider } })._rpcCore?.provider;
+  if (provider && typeof provider.send === 'function') return provider;
   return null;
 }
 
