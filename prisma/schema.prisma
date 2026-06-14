@@ -61,6 +61,7 @@ model Hotkey {
   axonPort        Int?             @map("axon_port")
   registeredBlock Int?             @map("registered_block")
   registeredAt    DateTime?        @map("registered_at")
+  isRegistered    Boolean?         @map("is_registered")
   fp              Int?
   fn              Int?
   lastSyncAt      DateTime?        @map("last_sync_at")

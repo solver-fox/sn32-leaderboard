@@ -66,6 +66,7 @@ export async function getLeaderboard(userId: string, query: LeaderboardQuery) {
       lastUpdate: h.lastSyncAt,
       coldkeyLabel: h.coldkey.label,
       coldkeyAddress: h.coldkey.address,
+      isRegistered: h.isRegistered,
     })),
     pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
   };

@@ -7,6 +7,7 @@ import { AuthGuard } from '@/components/AuthGuard';
 import { PageHeader } from '@/components/PageHeader';
 import { LoadingState } from '@/components/Layout';
 import { SortableColumn, SortableTable } from '@/components/SortableTable';
+import { HotkeyStatusBadge } from '@/components/hotkey/HotkeyStatusBadge';
 import { useTokenMetrics } from '@/hooks/useTokenMetrics';
 import { api, LeaderboardItem, formatNumber, truncateAddress } from '@/lib/api-client';
 
@@ -18,6 +19,7 @@ interface LeaderboardResponse {
 const LEADERBOARD_COLUMN_ORDER = [
   'uid',
   'rank',
+  'status',
   'coldkey',
   'hotkey',
   'emission',
@@ -67,6 +69,13 @@ function LeaderboardContent() {
         sortField: 'rank',
         render: (item) =>
           item.rank != null ? <span className="badge-brand">{item.rank}</span> : '—',
+      },
+      {
+        id: 'status',
+        label: 'Status',
+        render: (item) => (
+          <HotkeyStatusBadge isRegistered={item.isRegistered} lastSyncAt={item.lastUpdate} compact />
+        ),
       },
       {
         id: 'coldkey',

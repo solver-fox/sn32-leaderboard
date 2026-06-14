@@ -11,7 +11,8 @@ import {
   MetricRange,
 } from '@/components/hotkey/HotkeyMetrics';
 import { HotkeyMetricCharts } from '@/components/hotkey/HotkeyMetricCharts';
-import { api, Hotkey, MetricHistory, truncateAddress, getHotkeyRegistration } from '@/lib/api-client';
+import { api, Hotkey, MetricHistory, truncateAddress, getHotkeyRegistration, getHotkeySubnetStatus } from '@/lib/api-client';
+import { HotkeyStatusBadge } from '@/components/hotkey/HotkeyStatusBadge';
 
 interface HotkeyDashboardProps {
   hotkeyId: string;
@@ -38,9 +39,16 @@ export function HotkeyDashboard({ hotkeyId, variant, backHref }: HotkeyDashboard
   if (!hotkey || !metrics) return null;
 
   const isPanel = variant === 'panel';
+  const subnetStatus = getHotkeySubnetStatus(hotkey);
 
   return (
     <div className={`flex h-full flex-col ${isPanel ? 'min-h-0' : 'space-y-6'}`}>
+      {hotkey.isRegistered === false && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+          <p className="font-medium">Deregistered from subnet 32</p>
+          <p className="mt-1 text-xs opacity-90">{subnetStatus.description}</p>
+        </div>
+      )}
       <div className={`flex items-start justify-between gap-4 ${isPanel ? 'shrink-0 pb-4' : ''}`}>
         <div className="min-w-0">
           {backHref && (
@@ -52,12 +60,15 @@ export function HotkeyDashboard({ hotkeyId, variant, backHref }: HotkeyDashboard
             {hotkey.label || 'Hotkey'}
           </h2>
           <p className="truncate font-mono text-xs text-slate-500">{hotkey.address}</p>
-          {metrics.current.uid != null && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              <span className="badge-muted">UID {metrics.current.uid}</span>
-              <span className="badge-brand">Rank {metrics.current.rank ?? '—'}</span>
-            </div>
-          )}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <HotkeyStatusBadge isRegistered={hotkey.isRegistered} lastSyncAt={hotkey.lastSyncAt} />
+            {hotkey.isRegistered !== false && metrics.current.uid != null && (
+              <>
+                <span className="badge-muted">UID {metrics.current.uid}</span>
+                <span className="badge-brand">Rank {metrics.current.rank ?? '—'}</span>
+              </>
+            )}
+          </div>
           {(() => {
             const reg = getHotkeyRegistration(hotkey);
             return (
@@ -160,8 +171,13 @@ export function HotkeyListItem({
         </button>
       </div>
       <div className="mt-2.5 flex flex-wrap gap-1.5">
-        <span className="badge-muted">Rank {hotkey.rank ?? '—'}</span>
-        <span className="badge-brand">F1 {hotkey.f1 != null ? Number(hotkey.f1).toFixed(3) : '—'}</span>
+        <HotkeyStatusBadge isRegistered={hotkey.isRegistered} lastSyncAt={hotkey.lastSyncAt} compact />
+        {hotkey.isRegistered !== false && (
+          <>
+            <span className="badge-muted">Rank {hotkey.rank ?? '—'}</span>
+            <span className="badge-brand">F1 {hotkey.f1 != null ? Number(hotkey.f1).toFixed(3) : '—'}</span>
+          </>
+        )}
       </div>
       <div className="mt-1 text-xs text-slate-500">
         {reg.source === 'subnet' ? 'Reg.' : 'Added'} {reg.label} · {reg.age}

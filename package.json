@@ -1,7 +1,10 @@
 {
   "name": "sn32-tracker",
   "version": "0.1.0",
+  "description": "Bittensor Subnet 32 miner analytics dashboard",
+  "author": "SN32 Tracker",
   "private": true,
+  "main": "electron/main.js",
   "engines": {
     "node": ">=18"
   },
@@ -12,7 +15,12 @@
     "lint": "next lint",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "electron:dev": "concurrently -k \"npm run dev\" \"wait-on http://127.0.0.1:3000 && cross-env ELECTRON_DEV=1 electron .\"",
+    "electron:build": "npm run build && electron-builder",
+    "electron:build:win": "npm run build && electron-builder --win",
+    "electron:build:win:portable": "npm run build && electron-builder --win --dir",
+    "electron:build:linux": "npm run build && electron-builder --linux"
   },
   "dependencies": {
     "@polkadot/api": "^14.3.1",
@@ -35,9 +43,49 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.2.0",
+    "cross-env": "^7.0.3",
+    "electron": "^35.1.5",
+    "electron-builder": "^25.1.8",
     "postcss": "^8.4.49",
     "prisma": "^6.1.0",
     "tailwindcss": "^3.4.16",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "wait-on": "^8.0.3"
+  },
+  "build": {
+    "appId": "io.sn32.tracker",
+    "productName": "SN32 Tracker",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "electron/**/*",
+      "scripts/electron-*.js",
+      ".next/**/*",
+      "public/**/*",
+      "prisma/**/*",
+      "node_modules/**/*",
+      "package.json",
+      "next.config.ts",
+      "src/instrumentation.ts"
+    ],
+    "asar": false,
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "signAndEditExecutable": false
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "differentialPackage": false
+    }
   }
 }

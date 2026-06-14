@@ -88,6 +88,7 @@ async function syncHotkey(
   const metrics = findMinerMetrics(metricsByHotkey, hotkey.address);
 
   if (!metrics) {
+    await markHotkeyDeregistered(hotkey.id, now);
     return false;
   }
 
@@ -96,6 +97,7 @@ async function syncHotkey(
   await prisma.hotkey.update({
     where: { id: hotkey.id },
     data: {
+      isRegistered: true,
       uid: metrics.uid,
       rank: metrics.rank,
       incentive: metrics.incentive,
@@ -165,6 +167,32 @@ function hasMetricsChange(hotkey: StoredHotkey, metrics: import('@/lib/sync/bitt
     !decEqual(hotkey.f1, metrics.f1) ||
     !decEqual(hotkey.precision, metrics.precision)
   );
+}
+
+async function markHotkeyDeregistered(hotkeyId: string, now: Date) {
+  await prisma.hotkey.update({
+    where: { id: hotkeyId },
+    data: {
+      isRegistered: false,
+      uid: null,
+      rank: null,
+      incentive: null,
+      emission: null,
+      trust: null,
+      consensus: null,
+      stake: null,
+      axonIp: null,
+      axonPort: null,
+      weight: null,
+      reward: null,
+      f1: null,
+      precision: null,
+      recall: null,
+      fp: null,
+      fn: null,
+      lastSyncAt: now,
+    },
+  });
 }
 
 async function checkAlerts(

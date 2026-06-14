@@ -1,8 +1,8 @@
 node_modules/
 .next/
 out/
-dist/
-build/
+dist-electron/
+release/
 .env
 .env.local
 *.log

@@ -79,6 +79,7 @@ export interface Hotkey {
   fp: number | null;
   fn: number | null;
   lastSyncAt: string | null;
+  isRegistered: boolean | null;
   coldkey?: { id: string; label: string | null; address: string };
 }
 
@@ -101,6 +102,7 @@ export interface LeaderboardItem {
   lastUpdate: string | null;
   coldkeyLabel: string | null;
   coldkeyAddress: string | null;
+  isRegistered: boolean | null;
 }
 
 export interface PortfolioDashboard {
@@ -188,6 +190,33 @@ export function getHotkeyRegistration(hotkey: Hotkey) {
   const date = hotkey.registeredAt ?? hotkey.createdAt;
   const source = hotkey.registeredAt ? 'subnet' : 'tracked';
   return { date, source, age: formatAge(date), label: formatRegisteredDate(date) };
+}
+
+export type HotkeySubnetStatus = 'registered' | 'deregistered' | 'pending';
+
+export function getHotkeySubnetStatus(hotkey: {
+  isRegistered: boolean | null;
+  lastSyncAt?: string | null;
+}): { status: HotkeySubnetStatus; label: string; description: string } {
+  if (hotkey.isRegistered === true) {
+    return {
+      status: 'registered',
+      label: 'Registered',
+      description: 'Active on subnet 32 (UID assigned on chain).',
+    };
+  }
+  if (hotkey.isRegistered === false) {
+    return {
+      status: 'deregistered',
+      label: 'Deregistered',
+      description: 'Not found on subnet 32 during the last sync. This hotkey may have been deregistered.',
+    };
+  }
+  return {
+    status: 'pending',
+    label: 'Pending sync',
+    description: 'Run sync in Settings to check registration status on chain.',
+  };
 }
 
 export function truncateAddress(addr: string, chars = 6) {

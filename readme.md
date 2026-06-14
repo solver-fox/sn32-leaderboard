@@ -368,6 +368,50 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+### Web vs desktop
+
+Both modes use the same Next.js app. Nothing in the web workflow changes.
+
+| Mode | Command | Notes |
+|------|---------|--------|
+| **Web (dev)** | `npm run dev` | Uses `.env` and `prisma/dev.db` |
+| **Web (prod)** | `npm run build && npm run start` | Deploy to any Node host |
+| **Desktop (dev)** | `npm run electron:dev` | Opens Electron window → existing dev server |
+| **Desktop (.exe installer)** | `npm run electron:build:win` | **Native Windows only** (or GitHub Actions — see below) |
+| **Desktop (portable folder)** | `npm run electron:build:win:portable` | Works on **WSL/Linux** — no Wine; run `SN32 Tracker.exe` from `dist-electron/win-unpacked/` |
+| **Desktop (Linux)** | `npm run electron:build:linux` | AppImage in `dist-electron/` |
+
+Uses `electron-builder@25.1.8` (avoids an ESM `@noble/hashes` issue in v26 on Node 20.18).
+
+#### Building a Windows `.exe` installer from WSL
+
+NSIS installers need **Wine** when cross-compiling on Linux, or a **native Windows** build:
+
+**Option A — Portable app on WSL (no Wine):**
+```bash
+npm run electron:build:win:portable
+# Copy dist-electron/win-unpacked/ to Windows and run SN32 Tracker.exe
+```
+
+**Option B — Native Windows (PowerShell / CMD):**
+```bash
+npm install
+npm run electron:build:win
+# Output: dist-electron/SN32 Tracker Setup *.exe
+```
+
+**Option C — GitHub Actions:** Push a tag `v*` or run the **Build Windows Desktop App** workflow manually. Download the `.exe` from Actions artifacts.
+
+**Option D — Wine on WSL** (optional, can be flaky):
+```bash
+sudo dpkg --add-architecture i386
+sudo apt update
+sudo apt install wine64 wine32
+npm run electron:build:win
+```
+
+Desktop app stores its own SQLite DB and config under the OS user-data folder (`sn32.env`). Chain/WandB settings from your project `.env` are copied on first launch if present.
+
 ### Environment Variables
 
 | Variable | Description |
