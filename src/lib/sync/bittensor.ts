@@ -12,6 +12,8 @@ export interface SubnetMinerMetrics {
   f1: number | null;
   precision: number | null;
   recall: number | null;
+  weight: number | null;
+  reward: number | null;
   fp: number | null;
   fn: number | null;
 }
@@ -145,6 +147,8 @@ export async function fetchMetricsForHotkeys(
       f1: sn32?.f1 ?? evalScore?.f1 ?? null,
       precision: sn32?.precision ?? evalScore?.precision ?? null,
       recall: sn32?.recall ?? evalScore?.fpScore ?? null,
+      weight: evalScore?.weight ?? null,
+      reward: evalScore?.reward ?? null,
       fp: sn32?.fp ?? null,
       fn: sn32?.fn ?? null,
     });

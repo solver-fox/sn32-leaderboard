@@ -102,8 +102,9 @@ function HotkeysContent() {
                 <th className="table-head">Label</th>
                 <th className="table-head">Address</th>
                 <th className="table-head">Rank</th>
+                <th className="table-head">Reward</th>
                 <th className="table-head">F1</th>
-                <th className="table-head">Emission</th>
+                <th className="table-head">History</th>
                 <th className="table-head">Actions</th>
               </tr>
             </thead>
@@ -117,8 +118,13 @@ function HotkeysContent() {
                   </td>
                   <td className="table-cell font-mono text-xs">{truncateAddress(h.address, 10)}</td>
                   <td className="table-cell">{h.rank ?? '—'}</td>
-                  <td className="table-cell">{formatNumber(h.f1 ? Number(h.f1) : null)}</td>
-                  <td className="table-cell">{formatNumber(h.emission ? Number(h.emission) : null)}</td>
+                  <td className="table-cell">{formatNumber(h.reward != null ? Number(h.reward) : null)}</td>
+                  <td className="table-cell">{formatNumber(h.f1 != null ? Number(h.f1) : null)}</td>
+                  <td className="table-cell">
+                    <Link href={`/hotkeys/${h.id}`} className="text-xs text-brand-100 hover:underline">
+                      View charts
+                    </Link>
+                  </td>
                   <td className="table-cell">
                     <button
                       className="text-xs text-red-400 hover:underline"

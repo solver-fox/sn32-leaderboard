@@ -51,11 +51,7 @@ export async function runSyncJob(): Promise<SyncResult> {
       });
 
       for (const hotkey of coldkey.hotkeys) {
-        const updated = await syncHotkey(hotkey.id, hotkey.address, metricsByHotkey, now, coldkey.userId, {
-          previousRank: hotkey.rank,
-          previousEmission: hotkey.emission ? Number(hotkey.emission) : null,
-          previousF1: hotkey.f1 ? Number(hotkey.f1) : null,
-        });
+        const updated = await syncHotkey(hotkey, metricsByHotkey, now, coldkey.userId);
 
         if (updated) result.hotkeysUpdated += 1;
         else result.hotkeysNotFound += 1;
@@ -68,26 +64,34 @@ export async function runSyncJob(): Promise<SyncResult> {
   return result;
 }
 
+type StoredHotkey = {
+  id: string;
+  address: string;
+  rank: number | null;
+  emission: { toString(): string } | null;
+  f1: { toString(): string } | null;
+  precision: { toString(): string } | null;
+  recall: { toString(): string } | null;
+  weight: { toString(): string } | null;
+  reward: { toString(): string } | null;
+};
+
 async function syncHotkey(
-  hotkeyId: string,
-  address: string,
+  hotkey: StoredHotkey,
   metricsByHotkey: Map<string, import('@/lib/sync/bittensor').SubnetMinerMetrics>,
   now: Date,
   userId: string,
-  previous: {
-    previousRank: number | null;
-    previousEmission: number | null;
-    previousF1: number | null;
-  },
 ): Promise<boolean> {
-  const metrics = findMinerMetrics(metricsByHotkey, address);
+  const metrics = findMinerMetrics(metricsByHotkey, hotkey.address);
 
   if (!metrics) {
     return false;
   }
 
+  const scoresChanged = hasMetricsChange(hotkey, metrics);
+
   await prisma.hotkey.update({
-    where: { id: hotkeyId },
+    where: { id: hotkey.id },
     data: {
       uid: metrics.uid,
       rank: metrics.rank,
@@ -98,34 +102,61 @@ async function syncHotkey(
       f1: metrics.f1,
       precision: metrics.precision,
       recall: metrics.recall,
+      weight: metrics.weight,
+      reward: metrics.reward,
       fp: metrics.fp,
       fn: metrics.fn,
       lastSyncAt: now,
     },
   });
 
-  await prisma.metricSnapshot.create({
-    data: {
-      hotkeyId,
-      rank: metrics.rank,
-      emission: metrics.emission,
-      incentive: metrics.incentive,
-      f1: metrics.f1,
-      precision: metrics.precision,
-      recall: metrics.recall,
-      fp: metrics.fp,
-      fn: metrics.fn,
-    },
-  });
+  if (scoresChanged) {
+    await prisma.metricSnapshot.create({
+      data: {
+        hotkeyId: hotkey.id,
+        rank: metrics.rank,
+        emission: metrics.emission,
+        incentive: metrics.incentive,
+        f1: metrics.f1,
+        precision: metrics.precision,
+        recall: metrics.recall,
+        weight: metrics.weight,
+        reward: metrics.reward,
+        fp: metrics.fp,
+        fn: metrics.fn,
+      },
+    });
+  }
 
-  await checkAlerts(hotkeyId, userId, {
-    ...previous,
+  await checkAlerts(hotkey.id, userId, {
+    previousRank: hotkey.rank,
+    previousEmission: hotkey.emission ? Number(hotkey.emission) : null,
+    previousF1: hotkey.f1 ? Number(hotkey.f1) : null,
     currentRank: metrics.rank ?? 0,
     currentEmission: metrics.emission,
     currentF1: metrics.f1 ?? 0,
   });
 
   return true;
+}
+
+function decEqual(stored: { toString(): string } | null | undefined, value: number | null | undefined): boolean {
+  const a = stored != null ? Number(stored) : null;
+  const b = value ?? null;
+  if (a === null && b === null) return true;
+  if (a === null || b === null) return false;
+  return Math.abs(a - b) < 1e-10;
+}
+
+function hasMetricsChange(hotkey: StoredHotkey, metrics: import('@/lib/sync/bittensor').SubnetMinerMetrics): boolean {
+  return (
+    hotkey.rank !== metrics.rank ||
+    !decEqual(hotkey.weight, metrics.weight) ||
+    !decEqual(hotkey.reward, metrics.reward) ||
+    !decEqual(hotkey.recall, metrics.recall) ||
+    !decEqual(hotkey.f1, metrics.f1) ||
+    !decEqual(hotkey.precision, metrics.precision)
+  );
 }
 
 async function checkAlerts(

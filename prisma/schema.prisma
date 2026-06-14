@@ -54,6 +54,8 @@ model Hotkey {
   f1              Decimal?
   precision       Decimal?
   recall          Decimal?
+  weight          Decimal?
+  reward          Decimal?
   fp              Int?
   fn              Int?
   lastSyncAt      DateTime?        @map("last_sync_at")
@@ -76,6 +78,8 @@ model MetricSnapshot {
   f1        Decimal?
   precision Decimal?
   recall    Decimal?
+  weight    Decimal?
+  reward    Decimal?
   fp        Int?
   fn        Int?
   hotkey    Hotkey   @relation(fields: [hotkeyId], references: [id], onDelete: Cascade)

@@ -68,6 +68,8 @@ export interface Hotkey {
   f1: number | null;
   precision: number | null;
   recall: number | null;
+  weight: number | null;
+  reward: number | null;
   fp: number | null;
   fn: number | null;
   lastSyncAt: string | null;
@@ -114,27 +116,38 @@ export interface PortfolioDashboard {
 export interface MetricHistory {
   current: {
     rank: number | null;
+    uid: number | null;
+    weight: number | null;
+    reward: number | null;
+    fp: number | null;
+    f1: number | null;
+    ap: number | null;
     emission: number | null;
     incentive: number | null;
-    f1: number | null;
-    precision: number | null;
-    recall: number | null;
-    fp: number | null;
-    fn: number | null;
   };
   history: Array<{
     timestamp: string;
     rank: number | null;
-    emission: number | null;
+    weight: number | null;
+    reward: number | null;
+    fp: number | null;
     f1: number | null;
-    precision: number | null;
-    recall: number | null;
+    ap: number | null;
+    emission: number | null;
+    incentive: number | null;
   }>;
 }
 
 export function formatNumber(n: number | null | undefined, digits = 4) {
   if (n === null || n === undefined) return '—';
   return n.toLocaleString(undefined, { maximumFractionDigits: digits });
+}
+
+export function formatWeight(n: number | null | undefined) {
+  if (n === null || n === undefined) return '—';
+  if (n === 0) return '0';
+  if (Math.abs(n) < 0.0001) return n.toExponential(2);
+  return formatNumber(n, 6);
 }
 
 export function truncateAddress(addr: string, chars = 6) {
