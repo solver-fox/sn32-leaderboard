@@ -55,8 +55,8 @@ function LeaderboardContent() {
         <LoadingState />
       ) : (
         <>
-          <div className="overflow-hidden rounded-xl border border-surface-border">
-            <table className="w-full">
+          <div className="overflow-x-auto rounded-xl border border-surface-border">
+            <table className="w-full min-w-[960px]">
               <thead className="bg-slate-900/50">
                 <tr>
                   {[
@@ -77,12 +77,21 @@ function LeaderboardContent() {
                   ))}
                   <th className="table-head">Hotkey</th>
                   <th className="table-head">UID</th>
+                  <th
+                    className="table-head cursor-pointer select-none hover:text-slate-200"
+                    onClick={() => toggleSort('stake')}
+                  >
+                    Stake (α)
+                    {sortBy === 'stake' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                  </th>
+                  <th className="table-head">IP</th>
+                  <th className="table-head">Port</th>
                 </tr>
               </thead>
               <tbody>
                 {data?.items.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="table-cell py-8 text-center text-slate-400">
+                    <td colSpan={10} className="table-cell py-8 text-center text-slate-400">
                       No hotkeys yet.{' '}
                       <Link href="/hotkeys" className="text-brand-100 hover:underline">
                         Add hotkeys
@@ -104,6 +113,9 @@ function LeaderboardContent() {
                       </Link>
                     </td>
                     <td className="table-cell">{item.uid ?? '—'}</td>
+                    <td className="table-cell">{formatNumber(item.stake)}</td>
+                    <td className="table-cell font-mono text-xs">{item.axonIp ?? '—'}</td>
+                    <td className="table-cell">{item.axonPort ?? '—'}</td>
                   </tr>
                   ))
                 )}

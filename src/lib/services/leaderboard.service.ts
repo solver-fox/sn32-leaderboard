@@ -9,7 +9,7 @@ export interface LeaderboardQuery {
   sortOrder?: 'asc' | 'desc';
 }
 
-const SORT_FIELDS = ['rank', 'f1', 'emission', 'incentive', 'precision', 'recall', 'lastSyncAt'];
+const SORT_FIELDS = ['rank', 'f1', 'emission', 'incentive', 'precision', 'recall', 'stake', 'lastSyncAt'];
 
 export async function getLeaderboard(userId: string, query: LeaderboardQuery) {
   const page = Math.max(1, query.page ?? 1);
@@ -60,6 +60,9 @@ export async function getLeaderboard(userId: string, query: LeaderboardQuery) {
       fn: h.fn,
       emission: h.emission != null ? Number(h.emission) : null,
       incentive: h.incentive != null ? Number(h.incentive) : null,
+      stake: h.stake != null ? Number(h.stake) : null,
+      axonIp: h.axonIp,
+      axonPort: h.axonPort,
       lastUpdate: h.lastSyncAt,
       coldkeyLabel: h.coldkey.label,
     })),

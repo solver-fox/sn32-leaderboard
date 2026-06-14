@@ -70,6 +70,12 @@ export interface Hotkey {
   recall: number | null;
   weight: number | null;
   reward: number | null;
+  stake: number | null;
+  axonIp: string | null;
+  axonPort: number | null;
+  registeredBlock: number | null;
+  registeredAt: string | null;
+  createdAt: string;
   fp: number | null;
   fn: number | null;
   lastSyncAt: string | null;
@@ -89,6 +95,9 @@ export interface LeaderboardItem {
   fn: number | null;
   emission: number | null;
   incentive: number | null;
+  stake: number | null;
+  axonIp: string | null;
+  axonPort: number | null;
   lastUpdate: string | null;
   coldkeyLabel: string | null;
 }
@@ -148,6 +157,36 @@ export function formatWeight(n: number | null | undefined) {
   if (n === 0) return '0';
   if (Math.abs(n) < 0.0001) return n.toExponential(2);
   return formatNumber(n, 6);
+}
+
+export function formatRegisteredDate(date: string | Date | null | undefined) {
+  if (!date) return '—';
+  return new Date(date).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+export function formatAge(date: string | Date | null | undefined) {
+  if (!date) return '—';
+  const ms = Date.now() - new Date(date).getTime();
+  if (ms < 0) return '0m';
+  const minutes = Math.floor(ms / 60_000);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo`;
+  return `${Math.floor(days / 365)}y`;
+}
+
+export function getHotkeyRegistration(hotkey: Hotkey) {
+  const date = hotkey.registeredAt ?? hotkey.createdAt;
+  const source = hotkey.registeredAt ? 'subnet' : 'tracked';
+  return { date, source, age: formatAge(date), label: formatRegisteredDate(date) };
 }
 
 export function truncateAddress(addr: string, chars = 6) {

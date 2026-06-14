@@ -56,6 +56,11 @@ model Hotkey {
   recall          Decimal?
   weight          Decimal?
   reward          Decimal?
+  stake           Decimal?
+  axonIp          String?          @map("axon_ip")
+  axonPort        Int?             @map("axon_port")
+  registeredBlock Int?             @map("registered_block")
+  registeredAt    DateTime?        @map("registered_at")
   fp              Int?
   fn              Int?
   lastSyncAt      DateTime?        @map("last_sync_at")
