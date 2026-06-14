@@ -100,6 +100,7 @@ export interface LeaderboardItem {
   axonPort: number | null;
   lastUpdate: string | null;
   coldkeyLabel: string | null;
+  coldkeyAddress: string | null;
 }
 
 export interface PortfolioDashboard {

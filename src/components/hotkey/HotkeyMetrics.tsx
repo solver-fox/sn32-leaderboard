@@ -1,4 +1,8 @@
+'use client';
+
+import { useMemo } from 'react';
 import { StatCard } from '@/components/Layout';
+import { SortableColumn, SortableTable } from '@/components/SortableTable';
 import { MetricHistory, formatNumber, formatWeight } from '@/lib/api-client';
 
 export function HotkeyEvalStats({ current }: { current: MetricHistory['current'] }) {
@@ -53,6 +57,8 @@ export function formatMetricTimestamp(ts: string) {
   });
 }
 
+type HistoryRow = MetricHistory['history'][number];
+
 export function HotkeyHistoryTable({
   history,
   compact = false,
@@ -61,6 +67,49 @@ export function HotkeyHistoryTable({
   compact?: boolean;
 }) {
   const rows = [...history].reverse();
+
+  const columns = useMemo<SortableColumn<HistoryRow>[]>(
+    () => [
+      {
+        id: 'time',
+        label: 'Time',
+        cellClassName: 'whitespace-nowrap font-mono text-xs text-slate-500',
+        render: (row) => formatMetricTimestamp(row.timestamp),
+      },
+      {
+        id: 'weight',
+        label: 'Weight',
+        cellClassName: 'font-mono text-xs',
+        render: (row) => formatWeight(row.weight),
+      },
+      {
+        id: 'reward',
+        label: 'Reward',
+        render: (row) => formatNumber(row.reward),
+      },
+      {
+        id: 'fp',
+        label: 'FP',
+        render: (row) => formatNumber(row.fp),
+      },
+      {
+        id: 'f1',
+        label: 'F1',
+        render: (row) => formatNumber(row.f1),
+      },
+      {
+        id: 'ap',
+        label: 'AP',
+        render: (row) => formatNumber(row.ap),
+      },
+      {
+        id: 'rank',
+        label: 'Rank',
+        render: (row) => row.rank ?? '—',
+      },
+    ],
+    [],
+  );
 
   if (rows.length === 0) {
     return (
@@ -72,34 +121,15 @@ export function HotkeyHistoryTable({
 
   return (
     <div className={`overflow-x-auto ${compact ? 'max-h-[420px] overflow-y-auto' : ''}`}>
-      <table className="w-full min-w-[640px]">
-        <thead className="sticky top-0 z-[1] bg-slate-100/95 backdrop-blur-sm dark:bg-slate-900/95">
-          <tr>
-            <th className="table-head">Time</th>
-            <th className="table-head">Weight</th>
-            <th className="table-head">Reward</th>
-            <th className="table-head">FP</th>
-            <th className="table-head">F1</th>
-            <th className="table-head">AP</th>
-            <th className="table-head">Rank</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.timestamp} className="transition hover:bg-slate-100 dark:hover:bg-slate-800/25">
-              <td className="table-cell whitespace-nowrap font-mono text-xs text-slate-400">
-                {formatMetricTimestamp(row.timestamp)}
-              </td>
-              <td className="table-cell font-mono text-xs">{formatWeight(row.weight)}</td>
-              <td className="table-cell">{formatNumber(row.reward)}</td>
-              <td className="table-cell">{formatNumber(row.fp)}</td>
-              <td className="table-cell">{formatNumber(row.f1)}</td>
-              <td className="table-cell">{formatNumber(row.ap)}</td>
-              <td className="table-cell">{row.rank ?? '—'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <SortableTable
+        tableId="hotkey-history"
+        columns={columns}
+        defaultOrder={['time', 'weight', 'reward', 'fp', 'f1', 'ap', 'rank']}
+        data={rows}
+        getRowKey={(row) => row.timestamp}
+        minWidth="640px"
+        theadClassName="sticky top-0 z-[1] bg-slate-100/95 backdrop-blur-sm dark:bg-slate-900/95"
+      />
     </div>
   );
 }

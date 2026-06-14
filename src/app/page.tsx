@@ -1,10 +1,12 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { AuthGuard } from '@/components/AuthGuard';
 import { PageHeader } from '@/components/PageHeader';
 import { StatCard, LoadingState, EmptyState } from '@/components/Layout';
+import { SortableColumn, SortableTable } from '@/components/SortableTable';
 import { useTokenMetrics } from '@/hooks/useTokenMetrics';
 import { api, PortfolioDashboard, formatNumber, truncateAddress } from '@/lib/api-client';
 
@@ -14,6 +16,48 @@ function DashboardContent() {
     queryFn: () => api.get<PortfolioDashboard>('/portfolio/dashboard'),
   });
   const { format, fieldLabel, columnLabel, unit } = useTokenMetrics();
+
+  const dashboardColumns = useMemo<SortableColumn<PortfolioDashboard['coldkeys'][number]>[]>(
+    () => [
+      {
+        id: 'label',
+        label: 'Label',
+        render: (c) => (
+          <span className="font-medium text-slate-800 dark:text-slate-200">{c.label || '—'}</span>
+        ),
+      },
+      {
+        id: 'address',
+        label: 'Address',
+        cellClassName: 'font-mono text-xs text-slate-500',
+        render: (c) => truncateAddress(c.address, 8),
+      },
+      {
+        id: 'tao',
+        label: columnLabel('tao'),
+        cellClassName: 'font-mono text-sm',
+        render: (c) => format('tao', c.taoBalance),
+      },
+      {
+        id: 'alpha',
+        label: columnLabel('alpha'),
+        cellClassName: 'font-mono text-sm',
+        render: (c) => format('alpha', c.alphaBalance + c.alphaStake),
+      },
+      {
+        id: 'stake',
+        label: columnLabel('stake'),
+        cellClassName: 'font-mono text-sm',
+        render: (c) => format('stake', c.alphaStake),
+      },
+      {
+        id: 'miners',
+        label: 'Miners',
+        render: (c) => <span className="badge-muted">{c.hotkeyCount}</span>,
+      },
+    ],
+    [columnLabel, format],
+  );
 
   if (isLoading) return <LoadingState />;
   if (!data) return null;
@@ -90,34 +134,14 @@ function DashboardContent() {
           />
         ) : (
           <div className="table-wrap overflow-x-auto">
-            <table className="w-full min-w-[640px]">
-              <thead>
-                <tr>
-                  <th className="table-head">Label</th>
-                  <th className="table-head">Address</th>
-                  <th className="table-head">{columnLabel('tao')}</th>
-                  <th className="table-head">{columnLabel('alpha')}</th>
-                  <th className="table-head">{columnLabel('stake')}</th>
-                  <th className="table-head">Miners</th>
-                </tr>
-              </thead>
-              <tbody>
-                {coldkeys.map((c) => (
-                  <tr key={c.id} className="transition hover:bg-slate-100 dark:hover:bg-slate-800/25">
-                    <td className="table-cell font-medium text-slate-800 dark:text-slate-200">{c.label || '—'}</td>
-                    <td className="table-cell font-mono text-xs text-slate-400">{truncateAddress(c.address, 8)}</td>
-                    <td className="table-cell font-mono text-sm">{format('tao', c.taoBalance)}</td>
-                    <td className="table-cell font-mono text-sm">
-                      {format('alpha', c.alphaBalance + c.alphaStake)}
-                    </td>
-                    <td className="table-cell font-mono text-sm">{format('stake', c.alphaStake)}</td>
-                    <td className="table-cell">
-                      <span className="badge-muted">{c.hotkeyCount}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <SortableTable
+              tableId="dashboard-coldkeys"
+              columns={dashboardColumns}
+              defaultOrder={['label', 'address', 'tao', 'alpha', 'stake', 'miners']}
+              data={coldkeys}
+              getRowKey={(c) => c.id}
+              minWidth="640px"
+            />
           </div>
         )}
       </section>

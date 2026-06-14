@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AuthGuard } from '@/components/AuthGuard';
 import { PageHeader } from '@/components/PageHeader';
 import { LoadingState, EmptyState } from '@/components/Layout';
+import { SortableColumn, SortableTable } from '@/components/SortableTable';
 import { useTokenMetrics } from '@/hooks/useTokenMetrics';
 import { api, Coldkey, truncateAddress } from '@/lib/api-client';
 
@@ -48,6 +49,89 @@ function ColdkeysContent() {
       queryClient.invalidateQueries({ queryKey: ['hotkeys'] });
     },
   });
+
+  const columns = useMemo<SortableColumn<Coldkey>[]>(
+    () => [
+      {
+        id: 'label',
+        label: 'Label',
+        render: (c) =>
+          editingId === c.id ? (
+            <form
+              className="flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                updateMutation.mutate({ id: c.id, label: editLabel });
+              }}
+            >
+              <input className="input" value={editLabel} onChange={(e) => setEditLabel(e.target.value)} />
+              <button type="submit" className="btn-primary text-xs">
+                Save
+              </button>
+            </form>
+          ) : (
+            c.label || '—'
+          ),
+      },
+      {
+        id: 'address',
+        label: 'Address',
+        cellClassName: 'font-mono text-xs',
+        render: (c) => truncateAddress(c.address, 10),
+      },
+      {
+        id: 'tao',
+        label: columnLabel('tao'),
+        cellClassName: 'font-mono text-sm',
+        render: (c) => format('tao', Number(c.taoBalance)),
+      },
+      {
+        id: 'alpha',
+        label: columnLabel('alpha'),
+        cellClassName: 'font-mono text-sm',
+        render: (c) => format('alpha', Number(c.alphaBalance) + Number(c.alphaStake)),
+      },
+      {
+        id: 'stake',
+        label: columnLabel('stake'),
+        cellClassName: 'font-mono text-sm',
+        render: (c) => format('stake', Number(c.alphaStake)),
+      },
+      {
+        id: 'hotkeys',
+        label: 'Hotkeys',
+        render: (c) => c.hotkeys?.length ?? 0,
+      },
+      {
+        id: 'actions',
+        label: 'Actions',
+        render: (c) => (
+          <div className="flex gap-2">
+            <button
+              className="link-brand text-xs"
+              onClick={() => {
+                setEditingId(c.id);
+                setEditLabel(c.label ?? '');
+              }}
+            >
+              Edit
+            </button>
+            <button
+              className="btn-danger text-xs"
+              onClick={() => {
+                if (confirm('Delete this coldkey and all its hotkeys?')) {
+                  deleteMutation.mutate(c.id);
+                }
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [columnLabel, editLabel, editingId, format, updateMutation, deleteMutation],
+  );
 
   return (
     <div className="space-y-6">
@@ -94,75 +178,13 @@ function ColdkeysContent() {
         />
       ) : (
         <div className="table-wrap overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr>
-                <th className="table-head">Label</th>
-                <th className="table-head">Address</th>
-                <th className="table-head">{columnLabel('tao')}</th>
-                <th className="table-head">{columnLabel('alpha')}</th>
-                <th className="table-head">{columnLabel('stake')}</th>
-                <th className="table-head">Hotkeys</th>
-                <th className="table-head">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {coldkeys?.map((c) => (
-                <tr key={c.id} className="transition hover:bg-slate-100 dark:hover:bg-slate-800/25">
-                  <td className="table-cell">
-                    {editingId === c.id ? (
-                      <form
-                        className="flex gap-2"
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          updateMutation.mutate({ id: c.id, label: editLabel });
-                        }}
-                      >
-                        <input
-                          className="input"
-                          value={editLabel}
-                          onChange={(e) => setEditLabel(e.target.value)}
-                        />
-                        <button type="submit" className="btn-primary text-xs">
-                          Save
-                        </button>
-                      </form>
-                    ) : (
-                      c.label || '—'
-                    )}
-                  </td>
-                  <td className="table-cell font-mono text-xs">{truncateAddress(c.address, 10)}</td>
-                  <td className="table-cell font-mono text-sm">{format('tao', Number(c.taoBalance))}</td>
-                  <td className="table-cell font-mono text-sm">
-                    {format('alpha', Number(c.alphaBalance) + Number(c.alphaStake))}
-                  </td>
-                  <td className="table-cell font-mono text-sm">{format('stake', Number(c.alphaStake))}</td>
-                  <td className="table-cell">{c.hotkeys?.length ?? 0}</td>
-                  <td className="table-cell">
-                    <div className="flex gap-2">
-                      <button className="link-brand text-xs" onClick={() => {
-                          setEditingId(c.id);
-                          setEditLabel(c.label ?? '');
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="btn-danger text-xs"
-                        onClick={() => {
-                          if (confirm('Delete this coldkey and all its hotkeys?')) {
-                            deleteMutation.mutate(c.id);
-                          }
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <SortableTable
+            tableId="coldkeys"
+            columns={columns}
+            defaultOrder={['label', 'address', 'tao', 'alpha', 'stake', 'hotkeys', 'actions']}
+            data={coldkeys}
+            getRowKey={(c) => c.id}
+          />
         </div>
       )}
     </div>
