@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String?   @map("password_hash")
+  googleId      String?   @unique @map("google_id")
+  name          String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  coldkeys      Coldkey[]
+  alerts        Alert[]
+
+  @@map("users")
+}
+
+model Coldkey {
+  id               String            @id @default(cuid())
+  userId           String            @map("user_id")
+  address          String
+  label            String?
+  taoBalance       Decimal           @default(0) @map("tao_balance") @db.Decimal(20, 9)
+  alphaBalance     Decimal           @default(0) @map("alpha_balance") @db.Decimal(20, 9)
+  alphaStake       Decimal           @default(0) @map("alpha_stake") @db.Decimal(20, 9)
+  lastSyncAt       DateTime?         @map("last_sync_at")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hotkeys          Hotkey[]
+  balanceSnapshots BalanceSnapshot[]
+
+  @@unique([userId, address])
+  @@map("coldkeys")
+}
+
+model Hotkey {
+  id               String           @id @default(cuid())
+  coldkeyId        String           @map("coldkey_id")
+  address          String
+  label            String?
+  uid              Int?
+  rank             Int?
+  incentive        Decimal?         @db.Decimal(20, 9)
+  emission         Decimal?         @db.Decimal(20, 9)
+  trust            Decimal?         @db.Decimal(20, 9)
+  consensus        Decimal?         @db.Decimal(20, 9)
+  f1               Decimal?         @db.Decimal(10, 6)
+  precision        Decimal?         @db.Decimal(10, 6)
+  recall           Decimal?         @db.Decimal(10, 6)
+  fp               Int?
+  fn               Int?
+  lastSyncAt       DateTime?        @map("last_sync_at")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+  coldkey          Coldkey          @relation(fields: [coldkeyId], references: [id], onDelete: Cascade)
+  metricSnapshots  MetricSnapshot[]
+
+  @@unique([coldkeyId, address])
+  @@map("hotkeys")
+}
+
+model MetricSnapshot {
+  id        String   @id @default(cuid())
+  hotkeyId  String   @map("hotkey_id")
+  timestamp DateTime @default(now())
+  rank      Int?
+  emission  Decimal? @db.Decimal(20, 9)
+  incentive Decimal? @db.Decimal(20, 9)
+  f1        Decimal? @db.Decimal(10, 6)
+  precision Decimal? @db.Decimal(10, 6)
+  recall    Decimal? @db.Decimal(10, 6)
+  fp        Int?
+  fn        Int?
+  hotkey    Hotkey   @relation(fields: [hotkeyId], references: [id], onDelete: Cascade)
+
+  @@index([hotkeyId, timestamp])
+  @@map("metric_snapshots")
+}
+
+model BalanceSnapshot {
+  id           String   @id @default(cuid())
+  coldkeyId    String   @map("coldkey_id")
+  timestamp    DateTime @default(now())
+  taoBalance   Decimal  @map("tao_balance") @db.Decimal(20, 9)
+  alphaBalance Decimal  @map("alpha_balance") @db.Decimal(20, 9)
+  alphaStake   Decimal  @map("alpha_stake") @db.Decimal(20, 9)
+  coldkey      Coldkey  @relation(fields: [coldkeyId], references: [id], onDelete: Cascade)
+
+  @@index([coldkeyId, timestamp])
+  @@map("balance_snapshots")
+}
+
+enum AlertType {
+  EMISSION_DROP
+  RANK_DROP
+  F1_DROP
+}
+
+enum AlertChannel {
+  EMAIL
+  DISCORD
+}
+
+model Alert {
+  id          String       @id @default(cuid())
+  userId      String       @map("user_id")
+  hotkeyId    String?      @map("hotkey_id")
+  type        AlertType
+  channel     AlertChannel
+  threshold   Decimal      @db.Decimal(10, 4)
+  destination String
+  enabled     Boolean      @default(true)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("alerts")
+}
+
+model SyncConfig {
+  id              String   @id @default("default")
+  intervalMinutes Int      @default(10) @map("interval_minutes")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("sync_config")
+}
